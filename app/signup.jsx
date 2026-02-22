@@ -18,7 +18,7 @@ const signup = () => {
                 <Text style={styles.title}>WedSnap</Text>
             </View>
             <View style={styles.card}>
-                <Text style={styles.cardTitle}>Login</Text>
+                <Text style={styles.cardTitle}>Sign up</Text>
                 <View style={styles.inputView}>
                     <Text style={styles.inputTitle}>Email</Text>
                     <TextInput style={styles.inputField} placeholder='Email' />

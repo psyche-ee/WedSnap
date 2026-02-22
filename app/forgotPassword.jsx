@@ -2,7 +2,7 @@ import { StyleSheet, Text, TextInput, View, Image, Pressable } from 'react-nativ
 import { useFonts, Poppins_500Medium, Poppins_400Regular } from '@expo-google-fonts/poppins'
 import { Link } from 'expo-router'
 
-const login = () => {
+const forgotPassword = () => {
     const [fontsLoaded] = useFonts({
         Poppins_500Medium,
         Poppins_400Regular
@@ -11,7 +11,6 @@ const login = () => {
     if (!fontsLoaded) {
         return null;
     }
-
     return (
         <View style={styles.container}>
             <View style={styles.logoContainer}>
@@ -19,33 +18,29 @@ const login = () => {
                 <Text style={styles.title}>WedSnap</Text>
             </View>
             <View style={styles.card}>
-                <Text style={styles.cardTitle}>Login</Text>
+                <Text style={styles.cardTitle}>Forgot Password</Text>
                 <View style={styles.inputView}>
                     <Text style={styles.inputTitle}>Email</Text>
                     <TextInput style={styles.inputField} placeholder='Email' />
                 </View>
-                <View style={styles.inputView}>
-                    <Text style={styles.inputTitle}>Password</Text>
-                    <TextInput style={styles.inputField} placeholder='Password' />
+                <View style={styles.buttonContainer}>
+                    <Link href='/login' asChild>
+                        <Pressable style={styles.cancelButton}>
+                            <Text style={styles.cancelText}>Cancel</Text>
+                        </Pressable>
+                    </Link>
+                    <Link href='/dashboard' asChild>
+                        <Pressable style={styles.sendCodeButton}>
+                            <Text style={styles.buttonText}>Send Code</Text>
+                        </Pressable>
+                    </Link>
                 </View>
-                <Link href='/forgotPassword' style={styles.forgotPasswordLink}>Forgot password?</Link>
-                <Link href='/dashboard' asChild>
-                    <Pressable style={styles.loginButton}>
-                    <Text style={styles.buttonText}>Login</Text>
-                    </Pressable>
-                </Link>
-                <Link href="/signup">
-                    <Text style={styles.register}>
-                        Don’t have an account?{' '}
-                        <Text style={styles.highlight}>Register here.</Text>
-                    </Text>
-                </Link>
             </View>
         </View>
     )
 }
 
-export default login
+export default forgotPassword
 
 const styles = StyleSheet.create({
     container: {
@@ -101,32 +96,36 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#D9D9D9',
     },
-    forgotPasswordLink: {
-        fontSize: 14,
-        fontFamily: 'Poppins_400Regular',
-        color: '#B3B3B3',
-        alignSelf: 'flex-start'
+    buttonContainer: {
+        flexDirection: 'row',
+        gap: 10,
+        width: '80%',
+        alignItems: 'center',
+        justifyContent: 'center'
     },
-    loginButton: {
-        backgroundColor: '#6A4C93',
+    cancelButton: {
+        borderWidth: 1,
+        borderColor: '#D9D9D9',
         padding: 14,
+        paddingHorizontal: 20,
         borderRadius: 10,
         alignItems: 'center',
-        width: '100%',
+        marginVertical: 10
+    },
+    sendCodeButton: {
+        backgroundColor: '#6A4C93',
+        padding: 14,
+        paddingHorizontal: 20,
+        borderRadius: 10,
+        alignItems: 'center',
         marginVertical: 10
     },
     buttonText: {
         color: 'white',
         fontFamily: 'Poppins_500Medium'
     },
-    register: {
-        fontSize: 14,
-        fontFamily: 'Poppins_400Regular',
-        color: '#B3B3B3',
-    },
-    highlight: {
-        fontSize: 14,
-        fontFamily: 'Poppins_400Regular',
+    cancelText: {
         color: '#6A4C93',
-    }
+        fontFamily: 'Poppins_500Medium'
+    },
 })
