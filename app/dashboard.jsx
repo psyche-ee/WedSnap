@@ -29,7 +29,7 @@ const dashboard = () => {
         <Image source={require("../assets/wedsnap-banner.png")} />
       </View>
       <View style={styles.buttonContainer}>
-        <Link href="/join" asChild>
+        <Link href="/snap" asChild>
           <Pressable style={styles.joinBtn}>
             <Image source={require("../assets/join.png")} />
             <Text style={styles.linkText}>Join a {"\n"}Wedding</Text>
