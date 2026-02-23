@@ -6,6 +6,7 @@ import {
 import { Link } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Image } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const dashboard = () => {
   const [fontsLoaded] = useFonts({
@@ -16,7 +17,7 @@ const dashboard = () => {
   if (!fontsLoaded) return null;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.titleContainer}>
         <Image source={require("../assets/logo.png")} />
         <Text style={styles.title}>WedSnap</Text>
@@ -31,17 +32,17 @@ const dashboard = () => {
         <Link href="/snap" asChild>
           <Pressable style={styles.joinBtn}>
             <Image source={require("../assets/join.png")} />
-            <Text style={styles.linkText}>Join a {"\n"}Weeding</Text>
+            <Text style={styles.linkText}>Join a {"\n"}Wedding</Text>
           </Pressable>
         </Link>
         <Link href="/create" asChild>
           <Pressable style={styles.createBtn}>
             <Image source={require("../assets/create.png")} />
-            <Text style={styles.linkText}>Create a {"\n"}Weeding</Text>
+            <Text style={styles.linkText}>Create a {"\n"}Wedding</Text>
           </Pressable>
         </Link>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flexDirection: "row",
-    marginTop: 20,
+    marginTop: 60,
     marginBottom: 20,
     justifyContent: "center",
     alignItems: "center",
