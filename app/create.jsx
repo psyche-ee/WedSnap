@@ -8,6 +8,7 @@ import {
   Modal,
   Button,
   TextInput,
+  useColorScheme,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -21,6 +22,8 @@ import DateTimePicker, {
 import { useState } from "react";
 
 const Create = () => {
+  const colorScheme = useColorScheme();
+
   const [fontsLoaded] = useFonts({
     Poppins_500Medium,
     Poppins_400Regular,
@@ -78,7 +81,6 @@ const Create = () => {
       spouseName,
       location,
     });
-    // Add your create logic here
   };
 
   if (!fontsLoaded) return null;
@@ -146,7 +148,7 @@ const Create = () => {
         <>
           <Modal visible={showIOSModal} transparent animationType="slide">
             <View style={styles.modalBackdrop}>
-              <View style={styles.modalCard}>
+              <View style={styles.modalCard(colorScheme)}>
                 <DateTimePicker
                   value={date}
                   mode="date"
@@ -160,7 +162,7 @@ const Create = () => {
 
           <Modal visible={showIOSTimeModal} transparent animationType="slide">
             <View style={styles.modalBackdrop}>
-              <View style={styles.modalCard}>
+              <View style={styles.modalCard(colorScheme)}>
                 <DateTimePicker
                   value={time}
                   mode="time"
@@ -241,11 +243,11 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     backgroundColor: "rgba(0,0,0,0.25)",
   },
-  modalCard: {
-    backgroundColor: "#000",
+  modalCard: (colorScheme) => ({
+    backgroundColor: colorScheme === "dark" ? "#000" : "#FFF",
     alignItems: "center",
     padding: 12,
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
-  },
+  }),
 });
