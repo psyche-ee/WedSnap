@@ -1,13 +1,13 @@
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, Image } from 'react-native';
 
 const Navigation = () => {
   return (
     <View style={styles.container}>
-      <TouchableOpacity><Text style={styles.active}>🏠</Text></TouchableOpacity>
-      <TouchableOpacity><Text>🖼️</Text></TouchableOpacity>
-      <TouchableOpacity><Text>📷</Text></TouchableOpacity>
-      <TouchableOpacity><Text>⚙️</Text></TouchableOpacity>
-      <TouchableOpacity><Text>ℹ️</Text></TouchableOpacity>
+      <TouchableOpacity><Image source={require('../../assets/Home.png')} /></TouchableOpacity>
+      <TouchableOpacity><Image source={require('../../assets/Gallery.png')} /></TouchableOpacity>
+      <TouchableOpacity><Image source={require('../../assets/Capture.png')} /></TouchableOpacity>
+      <TouchableOpacity><Image source={require('../../assets/Settings.png')} /></TouchableOpacity>
+      <TouchableOpacity><Image source={require('../../assets/About.png')} /></TouchableOpacity>
     </View>
   );
 };
