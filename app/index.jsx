@@ -14,6 +14,9 @@ const index = () => {
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#E4DFFD' }}>
+      <Link href="/about" style={{ position: 'absolute', top: 60, right: 30 }}>
+        <Image source={require('../assets/aboutLogin.png')} />
+      </Link>
       <Image source={require('../assets/logo.png')} style={{ width: 150, height: 150 }} />
       <Text style={{ fontSize: 36, fontFamily: 'Poppins_500Medium' }}>WedSnap</Text>
       <Text style={{ fontSize: 18, fontFamily: 'Poppins_400Regular' }}>The Snap of a Lifetime</Text>
