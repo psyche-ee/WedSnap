@@ -1,13 +1,30 @@
-import { View, StyleSheet, TouchableOpacity, Text, Image } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 const Navigation = () => {
   return (
     <View style={styles.container}>
-      <TouchableOpacity><Image source={require('../../assets/Home.png')} /></TouchableOpacity>
-      <TouchableOpacity><Image source={require('../../assets/Gallery.png')} /></TouchableOpacity>
-      <TouchableOpacity><Image source={require('../../assets/Capture.png')} /></TouchableOpacity>
-      <TouchableOpacity><Image source={require('../../assets/Settings.png')} /></TouchableOpacity>
-      <TouchableOpacity><Image source={require('../../assets/About.png')} /></TouchableOpacity>
+      
+      <TouchableOpacity style={styles.iconWrapper}>
+        <Ionicons name="home" size={24} color="#6A4C93" />
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.iconWrapper}>
+        <Ionicons name="images" size={24} color="#6A4C93" />
+      </TouchableOpacity>
+
+      <TouchableOpacity style={[styles.iconWrapper, styles.iconWrapper]}>
+        <Ionicons name="camera" size={24} color="#6A4C93" />
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.iconWrapper}>
+        <Ionicons name="settings" size={24} color="#6A4C93" />
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.iconWrapper}>
+        <Ionicons name="person" size={24} color="#6A4C93" />
+      </TouchableOpacity>
+
     </View>
   );
 };
@@ -26,13 +43,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
 
     backgroundColor: '#fff',
-    paddingVertical: 25,
-    borderRadius: 30,
+    paddingVertical: 12,
+    borderRadius: 50,
 
-    elevation: 5,
+    elevation: 8,
   },
 
-  active: {
-    color: '#6A4C93',
+  iconWrapper: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+
+    backgroundColor: '#F3F0FA',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  centerIcon: {
+    backgroundColor: '#6A4C93',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginTop: -25, // floating effect
+    elevation: 10,
   },
 });

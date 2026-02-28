@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View, Image, Pressable } from 'react-native'
 import { useFonts, Poppins_500Medium, Poppins_400Regular } from '@expo-google-fonts/poppins'
+import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router'
 
 const index = () => {
@@ -15,7 +16,7 @@ const index = () => {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#E4DFFD' }}>
       <Link href="/about" style={{ position: 'absolute', top: 60, right: 30 }}>
-        <Image source={require('../assets/aboutLogin.png')} />
+        <Ionicons name="information-circle-outline" size={24} />
       </Link>
       <Image source={require('../assets/logo.png')} style={{ width: 150, height: 150 }} />
       <Text style={{ fontSize: 36, fontFamily: 'Poppins_500Medium' }}>WedSnap</Text>
