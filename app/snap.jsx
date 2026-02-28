@@ -7,6 +7,7 @@ import { useState } from 'react'
 import PhotoDisplay from './components/PhotoDisplay';
 import VideoDisplay from './components/VideoDisplay';
 import Navigation from './components/Navigation';
+import { Ionicons } from '@expo/vector-icons';
 
 const snap = () => {
     const [fontsLoaded] = useFonts({
@@ -76,7 +77,7 @@ const snap = () => {
                 </View>
                 <Text style={styles.description}>Upload and view wedding memories.</Text>
                 <TouchableOpacity style={styles.uploadBtn} onPress={showOptions}>
-                    <Image source={require('../assets/camera.png')}></Image>
+                    <Ionicons name="camera" size={32} color="#fff" />
                     <Text style={styles.buttonText}>Upload Photo or Video</Text>
                 </TouchableOpacity>
                 {image && (

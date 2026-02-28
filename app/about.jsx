@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, Image, ScrollView } from 'react-native'
 import { Link } from "expo-router";
 import { useFonts, Poppins_500Medium, Poppins_400Regular } from '@expo-google-fonts/poppins'
+import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const about = () => {
@@ -16,10 +17,10 @@ const about = () => {
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-            <Link href={'/'}>
-                <Image source={require('../assets/backArrow.png')} style={styles.backArrow} />
+            <Link href={'/'} style={styles.backArrow}>
+                <Ionicons name="arrow-back" size={24} />
             </Link>
-            <View style={styles.imageContainer}>
+            <View>
                 <Image source={require('../assets/wedsnap-banner.png')} />
             </View>
             <View style={styles.textContainer}>
@@ -49,11 +50,11 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#E4DFFD",
     },
-    imageContainer: {
-        marginTop: 10,
-    },
     backArrow: {
-        marginTop: 10
+        position: 'absolute',
+        top: 20,
+        left: 20,
+        zIndex: 1,
     },
     textContainer: {
         width: '80%',
