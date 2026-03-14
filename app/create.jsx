@@ -1,14 +1,13 @@
 import {
   Image,
-  StyleSheet,
   Text,
   View,
   Platform,
+  PlatformColor,
   Pressable,
   Modal,
   Button,
   TextInput,
-  useColorScheme,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -22,8 +21,6 @@ import DateTimePicker, {
 import { useState } from "react";
 
 const Create = () => {
-  const colorScheme = useColorScheme();
-
   const [fontsLoaded] = useFonts({
     Poppins_500Medium,
     Poppins_400Regular,
@@ -74,28 +71,35 @@ const Create = () => {
     setShowIOSTimeModal(true);
   };
 
-  const handleCreate = () => {
-    console.log({
-      date,
-      time,
-      spouseName,
-      location,
-    });
-  };
-
   if (!fontsLoaded) return null;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.titleContainer}>
+    <SafeAreaView className="flex-1 bg-[#E4DFFD]">
+      <View className="mt-5 mb-10 items-center">
         <Image source={require("../assets/logo.png")} />
-        <Text style={styles.titleText}>Wedding Form</Text>
+        <Text
+          className="text-[28px]"
+          style={{ fontFamily: "Poppins_500Medium" }}
+        >
+          Wedding Form
+        </Text>
       </View>
 
-      <Text style={styles.label}>Wedding Date</Text>
-      <Pressable style={styles.dateContainer} onPress={openDatePicker}>
+      <Text
+        className="mx-[30px] mb-1.5 text-base"
+        style={{ fontFamily: "Poppins_500Medium" }}
+      >
+        Wedding Date
+      </Text>
+      <Pressable
+        className="mx-[30px] mb-3 flex-row items-center gap-2 rounded-[10px] bg-white p-4"
+        onPress={openDatePicker}
+      >
         <Image source={require("../assets/calendar.png")} />
-        <Text style={styles.value}>
+        <Text
+          className="text-base text-[#333]"
+          style={{ fontFamily: "Poppins_400Regular" }}
+        >
           {date.toLocaleDateString("en-US", {
             year: "numeric",
             month: "long",
@@ -104,10 +108,21 @@ const Create = () => {
         </Text>
       </Pressable>
 
-      <Text style={styles.label}>Wedding Time</Text>
-      <Pressable style={styles.dateContainer} onPress={openTimePicker}>
+      <Text
+        className="mx-[30px] mb-1.5 text-base"
+        style={{ fontFamily: "Poppins_500Medium" }}
+      >
+        Wedding Time
+      </Text>
+      <Pressable
+        className="mx-[30px] mb-3 flex-row items-center gap-2 rounded-[10px] bg-white p-4"
+        onPress={openTimePicker}
+      >
         <Image source={require("../assets/watch.png")} />
-        <Text style={styles.value}>
+        <Text
+          className="text-base text-[#333]"
+          style={{ fontFamily: "Poppins_400Regular" }}
+        >
           {time.toLocaleTimeString("en-US", {
             hour: "numeric",
             minute: "2-digit",
@@ -116,11 +131,17 @@ const Create = () => {
         </Text>
       </Pressable>
 
-      <Text style={styles.label}>Spouse Name</Text>
-      <View style={styles.dateContainer}>
+      <Text
+        className="mx-[30px] mb-1.5 text-base"
+        style={{ fontFamily: "Poppins_500Medium" }}
+      >
+        Spouse Name
+      </Text>
+      <View className="mx-[30px] mb-3 flex-row items-center gap-2 rounded-[10px] bg-white p-4">
         <Image source={require("../assets/person.png")} />
         <TextInput
-          style={styles.textInput}
+          className="flex-1 text-base text-[#333]"
+          style={{ fontFamily: "Poppins_400Regular" }}
           placeholder="Enter spouse name"
           placeholderTextColor="#999"
           value={spouseName}
@@ -128,11 +149,17 @@ const Create = () => {
         />
       </View>
 
-      <Text style={styles.label}>Location</Text>
-      <View style={styles.dateContainer}>
+      <Text
+        className="mx-[30px] mb-1.5 text-base"
+        style={{ fontFamily: "Poppins_500Medium" }}
+      >
+        Location
+      </Text>
+      <View className="mx-[30px] mb-3 flex-row items-center gap-2 rounded-[10px] bg-white p-4">
         <Image source={require("../assets/location.png")} />
         <TextInput
-          style={styles.textInput}
+          className="flex-1 text-base text-[#333]"
+          style={{ fontFamily: "Poppins_400Regular" }}
           placeholder="Enter location"
           placeholderTextColor="#999"
           value={location}
@@ -140,15 +167,25 @@ const Create = () => {
         />
       </View>
 
-      <Pressable style={styles.createButton} onPress={handleCreate}>
-        <Text style={styles.createButtonText}>Create</Text>
+      <Pressable className="mx-[30px] mt-5 items-center rounded-[10px] bg-[#7C3AED] p-4">
+        <Text
+          className="text-base text-white"
+          style={{ fontFamily: "Poppins_500Medium" }}
+        >
+          Create
+        </Text>
       </Pressable>
 
       {Platform.OS === "ios" && (
         <>
           <Modal visible={showIOSModal} transparent animationType="slide">
-            <View style={styles.modalBackdrop}>
-              <View style={styles.modalCard(colorScheme)}>
+            <View className="flex-1 justify-end bg-[rgba(0,0,0,0.25)]">
+              <View
+                className="items-center rounded-tl-xl rounded-tr-xl p-3"
+                style={{
+                  backgroundColor: PlatformColor("secondarySystemBackground"),
+                }}
+              >
                 <DateTimePicker
                   value={date}
                   mode="date"
@@ -161,8 +198,13 @@ const Create = () => {
           </Modal>
 
           <Modal visible={showIOSTimeModal} transparent animationType="slide">
-            <View style={styles.modalBackdrop}>
-              <View style={styles.modalCard(colorScheme)}>
+            <View className="flex-1 justify-end bg-[rgba(0,0,0,0.25)]">
+              <View
+                className="items-center rounded-tl-xl rounded-tr-xl p-3"
+                style={{
+                  backgroundColor: PlatformColor("secondarySystemBackground"),
+                }}
+              >
                 <DateTimePicker
                   value={time}
                   mode="time"
@@ -183,71 +225,3 @@ const Create = () => {
 };
 
 export default Create;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#E4DFFD",
-  },
-  titleContainer: {
-    marginTop: 20,
-    alignItems: "center",
-    marginBottom: 40,
-  },
-  titleText: {
-    fontFamily: "Poppins_500Medium",
-    fontSize: 28,
-  },
-  dateContainer: {
-    flexDirection: "row",
-    gap: 8,
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    padding: 16,
-    marginHorizontal: 30,
-    marginBottom: 12,
-    borderRadius: 10,
-  },
-  label: {
-    fontFamily: "Poppins_500Medium",
-    marginBottom: 6,
-    marginHorizontal: 30,
-    fontSize: 16,
-  },
-  value: {
-    fontFamily: "Poppins_400Regular",
-    fontSize: 16,
-    color: "#333",
-  },
-  textInput: {
-    flex: 1,
-    fontFamily: "Poppins_400Regular",
-    fontSize: 16,
-    color: "#333",
-  },
-  createButton: {
-    backgroundColor: "#7C3AED",
-    marginHorizontal: 30,
-    marginTop: 20,
-    padding: 16,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  createButtonText: {
-    fontFamily: "Poppins_500Medium",
-    fontSize: 16,
-    color: "#FFFFFF",
-  },
-  modalBackdrop: {
-    flex: 1,
-    justifyContent: "flex-end",
-    backgroundColor: "rgba(0,0,0,0.25)",
-  },
-  modalCard: (colorScheme) => ({
-    backgroundColor: colorScheme === "dark" ? "#000" : "#FFF",
-    alignItems: "center",
-    padding: 12,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-  }),
-});

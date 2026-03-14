@@ -4,7 +4,7 @@ import {
   useFonts,
 } from "@expo-google-fonts/poppins";
 import { Link } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -17,28 +17,46 @@ const dashboard = () => {
   if (!fontsLoaded) return null;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.titleContainer}>
+    <SafeAreaView className="flex-1 bg-[#E4DFFD]">
+      <View className="mt-[60px] mb-5 flex-row items-center justify-center">
         <Image source={require("../assets/logo.png")} />
-        <Text style={styles.title}>WedSnap</Text>
+        <Text
+          className="text-[36px]"
+          style={{ fontFamily: "Poppins_500Medium" }}
+        >
+          WedSnap
+        </Text>
       </View>
-      <Text style={styles.description}>
+      <Text
+        className="text-center text-[18px]"
+        style={{ fontFamily: "Poppins_400Regular" }}
+      >
         Capture and share wedding {"\n"} memories together.
       </Text>
-      <View style={styles.bannerContainer}>
+      <View className="mx-auto mt-5 mb-[30px]">
         <Image source={require("../assets/wedsnap-banner.png")} />
       </View>
-      <View style={styles.buttonContainer}>
+      <View className="flex-row justify-between gap-2.5 p-5">
         <Link href="/join" asChild>
-          <Pressable style={styles.joinBtn}>
+          <Pressable className="flex-1 items-center rounded-[10px] bg-[#6A4C93] p-5">
             <Image source={require("../assets/join.png")} />
-            <Text style={styles.linkText}>Join a {"\n"}Wedding</Text>
+            <Text
+              className="text-center text-[20px] text-white"
+              style={{ fontFamily: "Poppins_400Regular" }}
+            >
+              Join a {"\n"}Wedding
+            </Text>
           </Pressable>
         </Link>
         <Link href="/create" asChild>
-          <Pressable style={styles.createBtn}>
+          <Pressable className="flex-1 items-center rounded-[10px] bg-[#D4AF37] p-5">
             <Image source={require("../assets/create.png")} />
-            <Text style={styles.linkText}>Create a {"\n"}Wedding</Text>
+            <Text
+              className="text-center text-[20px] text-white"
+              style={{ fontFamily: "Poppins_400Regular" }}
+            >
+              Create a {"\n"}Wedding
+            </Text>
           </Pressable>
         </Link>
       </View>
@@ -47,57 +65,3 @@ const dashboard = () => {
 };
 
 export default dashboard;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#E4DFFD",
-  },
-  titleContainer: {
-    flexDirection: "row",
-    marginTop: 60,
-    marginBottom: 20,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  title: {
-    fontFamily: "Poppins_500Medium",
-    fontSize: 36,
-  },
-  description: {
-    fontFamily: "Poppins_400Regular",
-    textAlign: "center",
-    fontSize: 18,
-  },
-  bannerContainer: {
-    marginTop: 20,
-    marginBottom: 30,
-    marginHorizontal: "auto",
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 20,
-    gap: 10,
-  },
-  joinBtn: {
-    flex: 1,
-    alignItems: "center",
-    backgroundColor: "#6A4C93",
-    padding: 20,
-    borderRadius: 10,
-  },
-  createBtn: {
-    flex: 1,
-    alignItems: "center",
-    backgroundColor: "#D4AF37",
-    padding: 20,
-    borderRadius: 10,
-  },
-  linkText: {
-    color: "white",
-    fontFamily: "Poppins_400Regular",
-    fontSize: 20,
-    textAlign: "center",
-  },
-});
