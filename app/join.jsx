@@ -1,11 +1,4 @@
-import {
-  Pressable,
-  Image,
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-} from "react-native";
+import { Pressable, Image, Text, View, TextInput } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -25,32 +18,51 @@ const join = () => {
   if (!fontsLoaded) return null;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.titleContainer}>
+    <SafeAreaView className="flex-1 bg-[#E4DFFD]">
+      <View className="mt-2.5 mb-2.5 flex-row items-center justify-center">
         <Image source={require("../assets/logo.png")} />
-        <Text style={styles.title}>WedSnap</Text>
+        <Text
+          className="text-[36px]"
+          style={{ fontFamily: "Poppins_500Medium" }}
+        >
+          WedSnap
+        </Text>
       </View>
-      <Text style={styles.description}>
+      <Text
+        className="text-center text-base"
+        style={{ fontFamily: "Poppins_400Regular" }}
+      >
         Capture and share wedding{"\n"} memories together.
       </Text>
-      <View style={styles.bannerContainer}>
+      <View className="mx-auto mt-5 mb-5">
         <Image source={require("../assets/wedsnap-banner.png")} />
       </View>
-      <Pressable style={styles.scanBtn}>
+      <Pressable className="mx-2.5 flex-row items-center justify-center gap-2 rounded-[5px] bg-[#6A4C93] p-[15px]">
         <Image source={require("../assets/qr.png")} />
-        <Text style={styles.label}>Scan QR Code</Text>
+        <Text
+          className="text-center text-[15px] text-white"
+          style={{ fontFamily: "Poppins_500Medium" }}
+        >
+          Scan QR Code
+        </Text>
       </Pressable>
-      <Text style={styles.or}>or</Text>
+      <Text className="my-3 text-center text-base text-[#757575]">or</Text>
       <TextInput
-        style={styles.codeInput}
+        className="mx-2.5 rounded-[5px] bg-white p-[15px]"
+        style={{ fontFamily: "Poppins_400Regular" }}
         placeholder="Enter weeding code"
         placeholderTextColor="#999"
         value={code}
         onChangeText={setCode}
       ></TextInput>
       <Link href="/snap" asChild>
-        <Pressable style={styles.joinBtn}>
-          <Text style={styles.label}>Join</Text>
+        <Pressable className="mt-5 w-[150px] self-center rounded-[5px] bg-[#D4AF37] p-3">
+          <Text
+            className="text-center text-[15px] text-white"
+            style={{ fontFamily: "Poppins_500Medium" }}
+          >
+            Join
+          </Text>
         </Pressable>
       </Link>
     </SafeAreaView>
@@ -58,70 +70,3 @@ const join = () => {
 };
 
 export default join;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#E4DFFD",
-  },
-  titleContainer: {
-    flexDirection: "row",
-    marginTop: 10,
-    marginBottom: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  title: {
-    fontFamily: "Poppins_500Medium",
-    fontSize: 36,
-  },
-  description: {
-    fontFamily: "Poppins_400Regular",
-    textAlign: "center",
-    fontSize: 16,
-  },
-  bannerContainer: {
-    marginTop: 20,
-    marginBottom: 20,
-    marginHorizontal: "auto",
-  },
-  scanBtn: {
-    backgroundColor: "#6A4C93",
-    flexDirection: "row",
-    marginHorizontal: 10,
-    borderRadius: 5,
-    padding: 15,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-  },
-  label: {
-    textAlign: "center",
-    fontFamily: "Poppins_500Medium",
-    color: "white",
-    fontSize: 15,
-  },
-
-  or: {
-    color: "#757575",
-    fontSize: 16,
-    marginVertical: 12,
-    textAlign: "center",
-  },
-  codeInput: {
-    fontFamily: "Poppins_400Regular",
-    backgroundColor: "#ffffff",
-    flexDirection: "row",
-    marginHorizontal: 10,
-    borderRadius: 5,
-    padding: 15,
-  },
-  joinBtn: {
-    marginTop: 20,
-    width: 150,
-    borderRadius: 5,
-    padding: 12,
-    backgroundColor: "#D4AF37",
-    margin: "auto",
-  },
-});
