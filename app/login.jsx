@@ -1,132 +1,108 @@
-import { StyleSheet, Text, TextInput, View, Image, Pressable } from 'react-native'
-import { useFonts, Poppins_500Medium, Poppins_400Regular } from '@expo-google-fonts/poppins'
-import { Link } from 'expo-router'
+import { Text, TextInput, View, Image, Pressable } from "react-native";
+import {
+  useFonts,
+  Poppins_500Medium,
+  Poppins_400Regular,
+} from "@expo-google-fonts/poppins";
+import { Link } from "expo-router";
 
-const login = () => {
-    const [fontsLoaded] = useFonts({
-        Poppins_500Medium,
-        Poppins_400Regular
-    });
+const Login = () => {
+  const [fontsLoaded] = useFonts({
+    Poppins_500Medium,
+    Poppins_400Regular,
+  });
 
-    if (!fontsLoaded) {
-        return null;
-    }
+  if (!fontsLoaded) {
+    return null;
+  }
 
-    return (
-        <View style={styles.container}>
-            <View style={styles.logoContainer}>
-                <Image source={require('../assets/logo.png')} style={styles.logo}/>
-                <Text style={styles.title}>WedSnap</Text>
-            </View>
-            <View style={styles.card}>
-                <Text style={styles.cardTitle}>Login</Text>
-                <View style={styles.inputView}>
-                    <Text style={styles.inputTitle}>Email</Text>
-                    <TextInput style={styles.inputField} placeholder='Email' />
-                </View>
-                <View style={styles.inputView}>
-                    <Text style={styles.inputTitle}>Password</Text>
-                    <TextInput style={styles.inputField} placeholder='Password' />
-                </View>
-                <Link href='/forgotPassword' style={styles.forgotPasswordLink}>Forgot password?</Link>
-                <Link href='/dashboard' asChild>
-                    <Pressable style={styles.loginButton}>
-                    <Text style={styles.buttonText}>Login</Text>
-                    </Pressable>
-                </Link>
-                <Link href="/signup">
-                    <Text style={styles.register}>
-                        Don’t have an account?{' '}
-                        <Text style={styles.highlight}>Register here.</Text>
-                    </Text>
-                </Link>
-            </View>
+  return (
+    <View className="flex-1 justify-center items-center gap-5 bg-[#E4DFFD]">
+      
+      <View className="flex-row items-center justify-center gap-2.5">
+        <Image
+          source={require("../assets/logo.png")}
+          className="w-[100px] h-[100px]"
+        />
+        <Text
+          className="text-[36px]"
+          style={{ fontFamily: "Poppins_500Medium" }}
+        >
+          WedSnap
+        </Text>
+      </View>
+
+      <View className="items-center bg-white p-5 rounded-[10px] w-[80%] gap-2.5">
+        <Text
+          className="text-[24px] mb-2.5"
+          style={{ fontFamily: "Poppins_400Regular" }}
+        >
+          Login
+        </Text>
+
+        <View className="w-full">
+          <Text
+            className="text-[16px]"
+            style={{ fontFamily: "Poppins_400Regular" }}
+          >
+            Email
+          </Text>
+
+          <TextInput
+            placeholder="Email"
+            className="bg-[#EEEEFB] py-2.5 px-4 rounded-lg w-full text-[16px] border border-[#D9D9D9]"
+            style={{ fontFamily: "Poppins_400Regular" }}
+          />
         </View>
-    )
-}
 
-export default login
+        <View className="w-full">
+          <Text
+            className="text-[16px]"
+            style={{ fontFamily: "Poppins_400Regular" }}
+          >
+            Password
+          </Text>
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 20,
-        backgroundColor: '#E4DFFD'
-    },
-    logoContainer: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'row',
-        gap: 10
-    },
-    logo: {
-        width: 100,
-        height: 100
-    },
-    card: {
-        alignItems: 'center',
-        backgroundColor: 'white',
-        padding: 20,
-        borderRadius: 10,
-        width: '80%',
-        gap: 10
-    },
-    title: {
-        fontSize: 36,
-        fontFamily: 'Poppins_500Medium'
-    },
-    cardTitle: {
-        fontSize: 24,
-        fontFamily: 'Poppins_400Regular',
-        marginBottom: 10
-    },
-    inputView: {
-        flexDirection: 'column',
-        width: '100%'
-    },
-    inputTitle: {
-        fontSize: 16,
-        fontFamily: 'Poppins_400Regular'
-    },
-    inputField: {
-        backgroundColor: '#EEEEFB',
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        borderRadius: 8,
-        width: '100%',
-        fontSize: 16,
-        fontFamily: 'Poppins_400Regular',
-        borderWidth: 1,
-        borderColor: '#D9D9D9',
-    },
-    forgotPasswordLink: {
-        fontSize: 14,
-        fontFamily: 'Poppins_400Regular',
-        color: '#B3B3B3',
-        alignSelf: 'flex-start'
-    },
-    loginButton: {
-        backgroundColor: '#6A4C93',
-        padding: 14,
-        borderRadius: 10,
-        alignItems: 'center',
-        width: '100%',
-        marginVertical: 10
-    },
-    buttonText: {
-        color: 'white',
-        fontFamily: 'Poppins_500Medium'
-    },
-    register: {
-        fontSize: 14,
-        fontFamily: 'Poppins_400Regular',
-        color: '#B3B3B3',
-    },
-    highlight: {
-        fontSize: 14,
-        fontFamily: 'Poppins_400Regular',
-        color: '#6A4C93',
-    }
-})
+          <TextInput
+            placeholder="Password"
+            className="bg-[#EEEEFB] py-2.5 px-4 rounded-lg w-full text-[16px] border border-[#D9D9D9]"
+            style={{ fontFamily: "Poppins_400Regular" }}
+          />
+        </View>
+
+        <Link href="/forgotPassword" className="text-[14px] text-[#B3B3B3] self-start">
+          Forgot password?
+        </Link>
+
+        <Link href="/dashboard" asChild>
+          <Pressable className="bg-[#6A4C93] py-3.5 rounded-[10px] items-center w-full my-2.5">
+            <Text
+              className="text-white"
+              style={{ fontFamily: "Poppins_500Medium" }}
+            >
+              Login
+            </Text>
+          </Pressable>
+        </Link>
+
+        <Link href="/signup">
+          <Text
+            className="text-[14px] text-[#B3B3B3]"
+            style={{ fontFamily: "Poppins_400Regular" }}
+          >
+            Don’t have an account?{" "}
+            <Text
+              className="text-[#6A4C93]"
+              style={{ fontFamily: "Poppins_400Regular" }}
+            >
+              Register here.
+            </Text>
+          </Text>
+        </Link>
+      </View>
+
+    </View>
+  );
+};
+
+export default Login;

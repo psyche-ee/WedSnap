@@ -1,62 +1,27 @@
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, Image } from "react-native";
 
 const VideoDisplay = () => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Videos</Text>
+    <View className="gap-2.5 mb-[100px]">
+      <Text className="text-[18px] font-semibold">Videos</Text>
 
-      <View style={styles.grid}>
-        {[1,2,3,4].map((item) => (
-          <View key={item} style={styles.card}>
+      <View className="flex-row flex-wrap justify-between">
+        {[1, 2, 3, 4].map((item) => (
+          <View
+            key={item}
+            className="w-[48%] h-[120px] bg-[#D9D9D9] rounded-[15px] mb-2.5 justify-center items-center"
+          >
             <Image
-              source={require('../../assets/videoPlaceholder.png')}
-              style={styles.image}
+              source={require("../../assets/videoPlaceholder.png")}
+              className="w-[40px] h-[40px] opacity-40"
             />
           </View>
         ))}
       </View>
-      <Text style={styles.more}>more</Text>
+
+      <Text className="self-end text-[#333]">more</Text>
     </View>
   );
 };
 
 export default VideoDisplay;
-
-const styles = StyleSheet.create({
-  container: {
-    gap: 10,
-    marginBottom: 100,
-  },
-
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-
-  card: {
-    width: '48%',
-    height: 120,
-    backgroundColor: '#D9D9D9',
-    borderRadius: 15,
-    marginBottom: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  image: {
-    width: 40,
-    height: 40,
-    opacity: 0.4,
-  },
-
-  more: {
-    alignSelf: 'flex-end',
-    color: '#333',
-  },
-});
