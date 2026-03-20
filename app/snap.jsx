@@ -8,6 +8,7 @@ import PhotoDisplay from "./components/PhotoDisplay";
 import VideoDisplay from "./components/VideoDisplay";
 import Navigation from "./components/Navigation";
 import { Ionicons } from "@expo/vector-icons";
+import Developers from "./components/Developers";
 
 const Snap = () => {
   const [fontsLoaded] = useFonts({
@@ -62,7 +63,7 @@ const Snap = () => {
   return (
     <SafeAreaView className="flex-1" edges={["top"]}>
       <ScrollView
-        contentContainerClassName="bg-[#E4DFFD] px-5 gap-5"
+        contentContainerClassName="bg-[#E4DFFD] px-5 gap-5 pb-20"
         showsVerticalScrollIndicator={false}
       >
         <View className="pt-5 flex-row justify-between items-center">
@@ -121,6 +122,7 @@ const Snap = () => {
 
         <PhotoDisplay />
         <VideoDisplay />
+        <Developers />
       </ScrollView>
 
       <Navigation />

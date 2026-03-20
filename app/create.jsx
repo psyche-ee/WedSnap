@@ -19,6 +19,7 @@ import DateTimePicker, {
   DateTimePickerAndroid,
 } from "@react-native-community/datetimepicker";
 import { useState } from "react";
+import Developers from "./components/Developers";
 
 const Create = () => {
   const [fontsLoaded] = useFonts({
@@ -220,6 +221,7 @@ const Create = () => {
           </Modal>
         </>
       )}
+      <Developers fixed />
     </SafeAreaView>
   );
 };
