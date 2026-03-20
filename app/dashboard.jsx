@@ -7,6 +7,7 @@ import { Link } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 import { Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Developers from "./components/Developers";
 
 const dashboard = () => {
   const [fontsLoaded] = useFonts({
@@ -60,6 +61,7 @@ const dashboard = () => {
           </Pressable>
         </Link>
       </View>
+      <Developers fixed />
     </SafeAreaView>
   );
 };

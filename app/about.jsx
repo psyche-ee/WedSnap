@@ -7,6 +7,7 @@ import {
 } from "@expo-google-fonts/poppins";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Developers from "./components/Developers";
 
 const about = () => {
   const [fontsLoaded] = useFonts({
@@ -93,6 +94,7 @@ const about = () => {
             {"\u2022"} Simple & Secure
           </Text>
         </View>
+        <Developers fixed />
       </ScrollView>
     </SafeAreaView>
   );

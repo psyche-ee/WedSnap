@@ -2,7 +2,7 @@ import { View, Text, Image } from "react-native";
 
 const VideoDisplay = () => {
   return (
-    <View className="gap-2.5 mb-[100px]">
+    <View className="gap-2.5">
       <Text className="text-[18px] font-semibold">Videos</Text>
 
       <View className="flex-row flex-wrap justify-between">

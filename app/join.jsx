@@ -7,6 +7,7 @@ import {
   useFonts,
 } from "@expo-google-fonts/poppins";
 import { Link } from "expo-router";
+import Developers from "./components/Developers";
 
 const join = () => {
   const [fontsLoaded] = useFonts({
@@ -65,6 +66,7 @@ const join = () => {
           </Text>
         </Pressable>
       </Link>
+      <Developers fixed />
     </SafeAreaView>
   );
 };

@@ -6,6 +6,7 @@ import {
 } from "@expo-google-fonts/poppins";
 import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
+import Developers from "./components/Developers";
 
 const index = () => {
   const [fontsLoaded] = useFonts({
@@ -58,6 +59,7 @@ const index = () => {
           </Pressable>
         </Link>
       </View>
+      <Developers fixed />
     </View>
   );
 };

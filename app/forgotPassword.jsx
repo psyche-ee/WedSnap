@@ -5,6 +5,7 @@ import {
   Poppins_400Regular,
 } from "@expo-google-fonts/poppins";
 import { Link } from "expo-router";
+import Developers from "./components/Developers";
 
 const ForgotPassword = () => {
   const [fontsLoaded] = useFonts({
@@ -79,7 +80,7 @@ const ForgotPassword = () => {
           </Link>
         </View>
       </View>
-
+      <Developers fixed />
     </View>
   );
 };
