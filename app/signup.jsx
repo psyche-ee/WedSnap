@@ -5,9 +5,15 @@ import {
   Poppins_400Regular,
 } from "@expo-google-fonts/poppins";
 import { Link } from "expo-router";
+import { useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
 import Developers from "./components/Developers";
+import Header from "./components/Header";
 
 const Signup = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [fontsLoaded] = useFonts({
     Poppins_500Medium,
     Poppins_400Regular,
@@ -19,19 +25,7 @@ const Signup = () => {
 
   return (
     <View className="flex-1 justify-center items-center gap-5 bg-[#E4DFFD]">
-      
-      <View className="flex-row items-center justify-center gap-2.5">
-        <Image
-          source={require("../assets/logo.png")}
-          className="w-[100px] h-[100px]"
-        />
-        <Text
-          className="text-[36px]"
-          style={{ fontFamily: "Poppins_500Medium" }}
-        >
-          WedSnap
-        </Text>
-      </View>
+      <Header />
 
       <View className="items-center bg-white p-5 rounded-[10px] w-[80%] gap-2.5">
         <Text
@@ -62,11 +56,26 @@ const Signup = () => {
           >
             Password
           </Text>
-          <TextInput
-            placeholder="Password"
-            className="bg-[#EEEEFB] py-2.5 px-4 rounded-lg w-full text-[16px] border border-[#D9D9D9]"
-            style={{ fontFamily: "Poppins_400Regular" }}
-          />
+
+          <View className="relative">
+            <TextInput
+              placeholder="Password"
+              secureTextEntry={!showPassword}
+              className="bg-[#EEEEFB] py-2.5 px-4 pr-12 rounded-lg w-full text-[16px] border border-[#D9D9D9]"
+              style={{ fontFamily: "Poppins_400Regular" }}
+            />
+
+            <Pressable
+              onPress={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-3"
+            >
+              <Ionicons
+                name={showPassword ? "eye-off" : "eye"}
+                size={20}
+                color="#888"
+              />
+            </Pressable>
+          </View>
         </View>
 
         <View className="w-full">
@@ -76,11 +85,26 @@ const Signup = () => {
           >
             Confirm Password
           </Text>
-          <TextInput
-            placeholder="Confirm Password"
-            className="bg-[#EEEEFB] py-2.5 px-4 rounded-lg w-full text-[16px] border border-[#D9D9D9]"
-            style={{ fontFamily: "Poppins_400Regular" }}
-          />
+
+          <View className="relative">
+            <TextInput
+              placeholder="Password"
+              secureTextEntry={!showConfirmPassword}
+              className="bg-[#EEEEFB] py-2.5 px-4 pr-12 rounded-lg w-full text-[16px] border border-[#D9D9D9]"
+              style={{ fontFamily: "Poppins_400Regular" }}
+            />
+
+            <Pressable
+              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-3"
+            >
+              <Ionicons
+                name={showConfirmPassword ? "eye-off" : "eye"}
+                size={20}
+                color="#888"
+              />
+            </Pressable>
+          </View>
         </View>
 
         <Link href="/dashboard" asChild>

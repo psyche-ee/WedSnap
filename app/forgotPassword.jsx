@@ -6,6 +6,7 @@ import {
 } from "@expo-google-fonts/poppins";
 import { Link } from "expo-router";
 import Developers from "./components/Developers";
+import Header from "./components/Header";
 
 const ForgotPassword = () => {
   const [fontsLoaded] = useFonts({
@@ -19,19 +20,7 @@ const ForgotPassword = () => {
 
   return (
     <View className="flex-1 justify-center items-center gap-5 bg-[#E4DFFD]">
-      
-      <View className="flex-row items-center justify-center gap-2.5">
-        <Image
-          source={require("../assets/logo.png")}
-          className="w-[100px] h-[100px]"
-        />
-        <Text
-          className="text-[36px]"
-          style={{ fontFamily: "Poppins_500Medium" }}
-        >
-          WedSnap
-        </Text>
-      </View>
+      <Header />
 
       <View className="items-center bg-white p-5 rounded-[10px] w-[80%] gap-2.5">
         <Text
