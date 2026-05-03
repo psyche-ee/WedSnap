@@ -8,7 +8,7 @@ import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
-import { auth } from "../../lib/firebase"; // adjust path if needed
+import { auth } from "../../lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
 import Developers from "../components/Developers";
@@ -18,7 +18,6 @@ const Login = () => {
   const router = useRouter();
 
   const [showPassword, setShowPassword] = useState(false);
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,12 +37,8 @@ const Login = () => {
 
     try {
       setLoading(true);
-
       await signInWithEmailAndPassword(auth, email, password);
-
-      Alert.alert("Success", "Logged in!");
-
-      router.replace("/dashboard"); // only redirect AFTER login
+      router.replace("/dashboard");
     } catch (error) {
       Alert.alert("Login Error", error.message);
     } finally {
@@ -52,40 +47,47 @@ const Login = () => {
   };
 
   return (
-    <View className="flex-1 justify-center items-center gap-5 bg-[#E4DFFD]">
+    <View className="flex-1 justify-center items-center gap-6 bg-[#F7F5FF]">
       <Header />
 
-      <View className="items-center bg-white p-5 rounded-[10px] w-[80%] gap-2.5">
+      {/* CARD */}
+      <View className="items-center bg-white p-6 rounded-2xl w-[85%] gap-4 shadow-md">
         <Text
-          className="text-[24px] mb-2.5"
-          style={{ fontFamily: "Poppins_400Regular" }}
+          className="text-[26px]"
+          style={{ fontFamily: "Poppins_500Medium", color: "#333" }}
         >
-          Login
+          Welcome Back
         </Text>
 
         {/* EMAIL */}
-        <View className="w-full">
-          <Text style={{ fontFamily: "Poppins_400Regular" }}>Email</Text>
+        <View className="w-full gap-1">
+          <Text style={{ fontFamily: "Poppins_400Regular", color: "#555" }}>
+            Email
+          </Text>
           <TextInput
-            placeholder="Email"
+            placeholder="Enter your email"
+            placeholderTextColor="#aaa"
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
-            className="bg-[#EEEEFB] py-2.5 px-4 rounded-lg border border-[#D9D9D9]"
+            className="bg-[#F1F0FF] py-3 px-4 rounded-xl border border-[#E4E1FF]"
           />
         </View>
 
         {/* PASSWORD */}
-        <View className="w-full">
-          <Text style={{ fontFamily: "Poppins_400Regular" }}>Password</Text>
+        <View className="w-full gap-1">
+          <Text style={{ fontFamily: "Poppins_400Regular", color: "#555" }}>
+            Password
+          </Text>
 
           <View className="relative">
             <TextInput
-              placeholder="Password"
+              placeholder="Enter your password"
+              placeholderTextColor="#aaa"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
-              className="bg-[#EEEEFB] py-2.5 px-4 pr-12 rounded-lg border border-[#D9D9D9]"
+              className="bg-[#F1F0FF] py-3 px-4 pr-12 rounded-xl border border-[#E4E1FF]"
             />
 
             <Pressable
@@ -95,27 +97,32 @@ const Login = () => {
               <Ionicons
                 name={showPassword ? "eye-off" : "eye"}
                 size={20}
-                color="#888"
+                color="#7C5CFC"
               />
             </Pressable>
           </View>
         </View>
 
         {/* FORGOT PASSWORD */}
-        <Pressable onPress={() => router.push("/forgotPassword")}>
-          <Text className="text-[14px] text-[#B3B3B3] self-start">
-            Forgot password?
-          </Text>
-        </Pressable>
+        <View className="w-full">
+          <Pressable onPress={() => router.push("/forgotPassword")}>
+            <Text
+              className="text-[13px]"
+              style={{ color: "#7C5CFC", fontFamily: "Poppins_400Regular" }}
+            >
+              Forgot password?
+            </Text>
+          </Pressable>
+        </View>
 
         {/* LOGIN BUTTON */}
         <Pressable
           onPress={handleLogin}
           disabled={loading}
-          className="bg-[#6A4C93] py-3.5 rounded-[10px] items-center w-full my-2.5"
+          className="bg-[#7C5CFC] py-3.5 rounded-xl items-center w-full mt-2 shadow-sm"
         >
           <Text
-            className="text-white"
+            className="text-white text-[16px]"
             style={{ fontFamily: "Poppins_500Medium" }}
           >
             {loading ? "Logging in..." : "Login"}
@@ -123,13 +130,13 @@ const Login = () => {
         </Pressable>
 
         {/* SIGNUP LINK */}
-        <Pressable onPress={() => router.push("/signup")}>
+        <Pressable onPress={() => router.push("/auth/signup")}>
           <Text
-            className="text-[14px] text-[#B3B3B3]"
-            style={{ fontFamily: "Poppins_400Regular" }}
+            className="text-[14px]"
+            style={{ fontFamily: "Poppins_400Regular", color: "#8A8A8A" }}
           >
             Don’t have an account?{" "}
-            <Text className="text-[#6A4C93]">Register here.</Text>
+            <Text style={{ color: "#7C5CFC" }}>Register here</Text>
           </Text>
         </Pressable>
       </View>

@@ -8,7 +8,7 @@ import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
-import { auth, db } from "../../lib/firebase"; // adjust path if needed
+import { auth, db } from "../../lib/firebase";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
@@ -53,7 +53,6 @@ const Signup = () => {
     try {
       setLoading(true);
 
-      // 🔐 1. Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -62,7 +61,6 @@ const Signup = () => {
 
       const user = userCredential.user;
 
-      // 💾 2. Save user to Firestore
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
         uid: user.uid,
@@ -70,7 +68,6 @@ const Signup = () => {
       });
 
       Alert.alert("Success", "Account created!");
-
       router.replace("/dashboard");
     } catch (error) {
       Alert.alert("Signup Error", error.message);
@@ -80,40 +77,47 @@ const Signup = () => {
   };
 
   return (
-    <View className="flex-1 justify-center items-center gap-5 bg-[#E4DFFD]">
+    <View className="flex-1 justify-center items-center gap-6 bg-[#F7F5FF]">
       <Header />
 
-      <View className="items-center bg-white p-5 rounded-[10px] w-[80%] gap-2.5">
+      {/* CARD */}
+      <View className="items-center bg-white p-6 rounded-2xl w-[85%] gap-4 shadow-md">
         <Text
-          className="text-[24px] mb-2.5"
-          style={{ fontFamily: "Poppins_400Regular" }}
+          className="text-[26px]"
+          style={{ fontFamily: "Poppins_500Medium", color: "#333" }}
         >
-          Sign up
+          Create Account
         </Text>
 
         {/* EMAIL */}
-        <View className="w-full">
-          <Text style={{ fontFamily: "Poppins_400Regular" }}>Email</Text>
+        <View className="w-full gap-1">
+          <Text style={{ fontFamily: "Poppins_400Regular", color: "#555" }}>
+            Email
+          </Text>
           <TextInput
-            placeholder="Email"
+            placeholder="Enter your email"
+            placeholderTextColor="#aaa"
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
-            className="bg-[#EEEEFB] py-2.5 px-4 rounded-lg border border-[#D9D9D9]"
+            className="bg-[#F1F0FF] py-3 px-4 rounded-xl border border-[#E4E1FF]"
           />
         </View>
 
         {/* PASSWORD */}
-        <View className="w-full">
-          <Text style={{ fontFamily: "Poppins_400Regular" }}>Password</Text>
+        <View className="w-full gap-1">
+          <Text style={{ fontFamily: "Poppins_400Regular", color: "#555" }}>
+            Password
+          </Text>
 
           <View className="relative">
             <TextInput
-              placeholder="Password"
+              placeholder="Create a password"
+              placeholderTextColor="#aaa"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
-              className="bg-[#EEEEFB] py-2.5 px-4 pr-12 rounded-lg border border-[#D9D9D9]"
+              className="bg-[#F1F0FF] py-3 px-4 pr-12 rounded-xl border border-[#E4E1FF]"
             />
 
             <Pressable
@@ -123,35 +127,38 @@ const Signup = () => {
               <Ionicons
                 name={showPassword ? "eye-off" : "eye"}
                 size={20}
-                color="#888"
+                color="#7C5CFC"
               />
             </Pressable>
           </View>
         </View>
 
         {/* CONFIRM PASSWORD */}
-        <View className="w-full">
-          <Text style={{ fontFamily: "Poppins_400Regular" }}>
+        <View className="w-full gap-1">
+          <Text style={{ fontFamily: "Poppins_400Regular", color: "#555" }}>
             Confirm Password
           </Text>
 
           <View className="relative">
             <TextInput
-              placeholder="Confirm Password"
+              placeholder="Confirm your password"
+              placeholderTextColor="#aaa"
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry={!showConfirmPassword}
-              className="bg-[#EEEEFB] py-2.5 px-4 pr-12 rounded-lg border border-[#D9D9D9]"
+              className="bg-[#F1F0FF] py-3 px-4 pr-12 rounded-xl border border-[#E4E1FF]"
             />
 
             <Pressable
-              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              onPress={() =>
+                setShowConfirmPassword(!showConfirmPassword)
+              }
               className="absolute right-3 top-3"
             >
               <Ionicons
                 name={showConfirmPassword ? "eye-off" : "eye"}
                 size={20}
-                color="#888"
+                color="#7C5CFC"
               />
             </Pressable>
           </View>
@@ -161,24 +168,24 @@ const Signup = () => {
         <Pressable
           onPress={handleSignup}
           disabled={loading}
-          className="bg-[#6A4C93] py-3.5 rounded-[10px] items-center w-full my-2.5"
+          className="bg-[#7C5CFC] py-3.5 rounded-xl items-center w-full mt-2 shadow-sm"
         >
           <Text
-            className="text-white"
+            className="text-white text-[16px]"
             style={{ fontFamily: "Poppins_500Medium" }}
           >
-            {loading ? "Signing up..." : "Sign up"}
+            {loading ? "Creating account..." : "Sign up"}
           </Text>
         </Pressable>
 
         {/* LOGIN LINK */}
-        <Pressable onPress={() => router.push("/login")}>
+        <Pressable onPress={() => router.push("/auth/login")}>
           <Text
-            className="text-[14px] text-[#B3B3B3]"
-            style={{ fontFamily: "Poppins_400Regular" }}
+            className="text-[14px]"
+            style={{ fontFamily: "Poppins_400Regular", color: "#8A8A8A" }}
           >
             Already have an account?{" "}
-            <Text className="text-[#6A4C93]">Login</Text>
+            <Text style={{ color: "#7C5CFC" }}>Login</Text>
           </Text>
         </Pressable>
       </View>
