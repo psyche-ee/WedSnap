@@ -5,7 +5,7 @@ const Header = () => {
     <View>
       <View className="mb-5 flex-row items-center justify-center">
         <Image
-          source={require("../../assets/logo.png")}
+          source={require("../../assets/wedsnap.png")}
           className="w-[100px] h-[100px]"
         />
         <Text
