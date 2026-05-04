@@ -10,7 +10,7 @@ const Index = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        router.replace("/dashboard");
+        router.replace("/home");
       } else {
         router.replace("/auth/login");
       }

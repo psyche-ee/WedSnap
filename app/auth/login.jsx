@@ -38,7 +38,7 @@ const Login = () => {
     try {
       setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
-      router.replace("/dashboard");
+      router.replace("/home");
     } catch (error) {
       Alert.alert("Login Error", error.message);
     } finally {
