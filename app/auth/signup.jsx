@@ -10,7 +10,7 @@ import { useRouter } from "expo-router";
 
 import { auth, db } from "../../lib/firebase";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 import Developers from "../components/Developers";
 import Header from "../components/Header";
@@ -21,6 +21,7 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -35,7 +36,7 @@ const Signup = () => {
   if (!fontsLoaded) return null;
 
   const handleSignup = async () => {
-    if (!email || !password || !confirmPassword) {
+    if (!name || !email || !password || !confirmPassword) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
@@ -56,12 +57,17 @@ const Signup = () => {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
-        password
+        password,
       );
 
       const user = userCredential.user;
 
+      if (name) {
+        await updateProfile(user, { displayName: name });
+      }
+
       await setDoc(doc(db, "users", user.uid), {
+        name,
         email: user.email,
         uid: user.uid,
         createdAt: serverTimestamp(),
@@ -88,6 +94,21 @@ const Signup = () => {
         >
           Create Account
         </Text>
+
+        {/* NAME */}
+        <View className="w-full gap-1">
+          <Text style={{ fontFamily: "Poppins_400Regular", color: "#555" }}>
+            Name
+          </Text>
+          <TextInput
+            placeholder="Enter your name"
+            placeholderTextColor="#aaa"
+            value={name}
+            onChangeText={setName}
+            autoCapitalize="none"
+            className="bg-[#F1F0FF] py-3 px-4 rounded-xl border border-[#E4E1FF]"
+          />
+        </View>
 
         {/* EMAIL */}
         <View className="w-full gap-1">
@@ -150,9 +171,7 @@ const Signup = () => {
             />
 
             <Pressable
-              onPress={() =>
-                setShowConfirmPassword(!showConfirmPassword)
-              }
+              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
               className="absolute right-3 top-3"
             >
               <Ionicons
