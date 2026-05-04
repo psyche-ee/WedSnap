@@ -116,7 +116,7 @@ const Create = () => {
 
       Alert.alert("Success", `Wedding created!\nCode: ${inviteCode}`);
 
-      router.replace("/home");
+      router.replace(`/home?weddingId=${weddingDoc.id}`);
     } catch (error) {
       Alert.alert("Error", error.message);
     } finally {

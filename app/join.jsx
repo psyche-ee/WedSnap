@@ -75,7 +75,7 @@ const Join = () => {
 
       Alert.alert("Success", "Joined wedding!");
 
-      router.replace("/home");
+      router.replace(`/home?weddingId=${weddingDoc.id}`);
     } catch (error) {
       Alert.alert("Error", error.message);
     } finally {
