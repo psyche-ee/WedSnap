@@ -1,12 +1,29 @@
-import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFonts, Poppins_500Medium, Poppins_400Regular } from "@expo-google-fonts/poppins";
+import {
+  useFonts,
+  Poppins_500Medium,
+  Poppins_400Regular,
+} from "@expo-google-fonts/poppins";
 import { Ionicons } from "@expo/vector-icons";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
+import { signOut } from "firebase/auth";
+import { auth } from "../lib/firebase";
 import Navigation from "./components/Navigation";
 import Developers from "./components/Developers";
 
 export default function Settings() {
+  const user = auth.currentUser;
+  const displayName = user?.displayName?.trim() || "User";
+  const email = user?.email || "No email";
+
   const [fontsLoaded] = useFonts({
     Poppins_500Medium,
     Poppins_400Regular,
@@ -16,16 +33,25 @@ export default function Settings() {
 
   const router = useRouter();
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.replace("/auth/login");
+    } catch (error) {
+      Alert.alert("Error", "Failed to log out. Please try again.");
+    }
+  };
+
   // Generic setting item with optional danger style
   const SettingItem = ({ icon, title, danger, onPress }) => (
     <TouchableOpacity
       onPress={onPress}
-      className={"flex-row items-center justify-between p-4 rounded-2xl shadow-sm bg-white"}
+      className={
+        "flex-row items-center justify-between p-4 rounded-2xl shadow-sm bg-white"
+      }
     >
       <View className="flex-row items-center gap-3">
-        <View
-          className={"p-2 rounded-full bg-[#F3F0FA]"}
-        >
+        <View className={"p-2 rounded-full bg-[#F3F0FA]"}>
           <Ionicons
             name={icon}
             size={20}
@@ -47,11 +73,16 @@ export default function Settings() {
 
   return (
     <SafeAreaView className="flex-1" edges={["top"]}>
-      <ScrollView className="bg-[#E4DFFD]" contentContainerClassName="px-5 pb-24 gap-6">
-
+      <ScrollView
+        className="bg-[#E4DFFD]"
+        contentContainerClassName="px-5 pb-24 gap-6"
+      >
         {/* Header */}
         <View className="mt-5">
-          <Text className="text-[26px]" style={{ fontFamily: "Poppins_500Medium" }}>
+          <Text
+            className="text-[26px]"
+            style={{ fontFamily: "Poppins_500Medium" }}
+          >
             Settings
           </Text>
           <Text className="text-gray-500 text-sm mt-1">
@@ -66,31 +97,35 @@ export default function Settings() {
             className="w-[90px] h-[90px] rounded-full mb-3"
           />
           <Text className="text-lg" style={{ fontFamily: "Poppins_500Medium" }}>
-            Username
+            {displayName}
           </Text>
-          <Text className="text-gray-500 text-sm">
-            user@email.com
-          </Text>
+          <Text className="text-gray-500 text-sm">{email}</Text>
         </View>
 
         {/* Settings Section */}
         <View className="gap-3">
-          <SettingItem icon="lock-closed" title="Change Password" />
-          <SettingItem icon="notifications" title="Notifications" />
-          <SettingItem icon="shield-checkmark" title="Privacy" />
-          <SettingItem icon="information-circle" title="About App" />
-          <Link href="/login" asChild>
-            <SettingItem icon="log-out" title="Log Out" danger onPress={() => router.push("/login")} />
-          </Link>
+          <SettingItem
+            icon="person-circle"
+            title="Change Name"
+            onPress={() => router.push("/edit_profile")}
+          />
+          <SettingItem
+            icon="lock-closed"
+            title="Change Password"
+            onPress={() => router.push("/change_password")}
+          />
+          <SettingItem
+            icon="information-circle"
+            title="About App"
+            onPress={() => router.push("/about")}
+          />
+          <SettingItem
+            icon="log-out"
+            title="Log Out"
+            danger
+            onPress={handleLogout}
+          />
         </View>
-
-        {/* Join Another Wedding Button */}
-        <TouchableOpacity className="flex-row items-center justify-center gap-2 bg-[#D4AF37] p-4 rounded-2xl shadow-sm">
-          <Ionicons name="person-add" size={20} color="#fff" />
-          <Text className="text-white text-[16px]" style={{ fontFamily: "Poppins_500Medium" }}>
-            Join Another Wedding
-          </Text>
-        </TouchableOpacity>
 
         <Developers />
       </ScrollView>
