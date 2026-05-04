@@ -19,6 +19,8 @@ import { auth } from "../lib/firebase";
 import Navigation from "./components/Navigation";
 import Developers from "./components/Developers";
 
+import { useWedding } from "../context/WeddingContext";
+
 export default function Settings() {
   const user = auth.currentUser;
   const displayName = user?.displayName?.trim() || "User";
@@ -33,14 +35,18 @@ export default function Settings() {
 
   const router = useRouter();
 
+  const { resetWedding } = useWedding();
+
   const handleLogout = async () => {
     try {
+      resetWedding(); // 🔥 CLEAR OLD DATA
       await signOut(auth);
       router.replace("/auth/login");
     } catch (error) {
       Alert.alert("Error", "Failed to log out. Please try again.");
     }
   };
+
 
   // Generic setting item with optional danger style
   const SettingItem = ({ icon, title, danger, onPress }) => (

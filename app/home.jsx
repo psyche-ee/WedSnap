@@ -52,7 +52,10 @@ const Home = () => {
     const fetchData = async () => {
       try {
         const user = auth.currentUser;
-        if (!user) return;
+         if (!user || !weddingId) {
+            setWedding(null);
+            return;
+          }
 
         const userSnap = await getDoc(doc(db, "users", user.uid));
         if (userSnap.exists()) {
