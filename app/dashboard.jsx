@@ -18,12 +18,17 @@ import { useEffect, useState } from "react";
 import { auth } from "../lib/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 
+import { useLocalSearchParams } from "expo-router";
+import Navigation from "./components/Navigation";
+
 import Developers from "./components/Developers";
 import Header from "./components/Header";
 
 const Dashboard = () => {
   const router = useRouter();
   const [menuVisible, setMenuVisible] = useState(false);
+
+  const { weddingId } = useLocalSearchParams();
 
   const [fontsLoaded] = useFonts({
     Poppins_500Medium,
@@ -173,13 +178,7 @@ const Dashboard = () => {
         </Link>
       </View>
 
-      {/* ACCENT LINE */}
-      <View className="mt-6 mx-5 h-[2px] bg-[#E4E1FF] rounded-full" />
-
-      {/* DEVELOPERS */}
-      <View className="mt-auto">
-        <Developers fixed />
-      </View>
+      <Navigation weddingId={weddingId} />
 
     </SafeAreaView>
   );
