@@ -18,7 +18,13 @@ import { useState, useEffect } from "react";
 import {
   doc,
   getDoc,
+  collection,
+  addDoc,
+  serverTimestamp
 } from "firebase/firestore";
+
+import { uploadToCloudinary } from "../lib/cloudinary";
+
 import { auth, db } from "../lib/firebase";
 import { useWedding } from "../context/WeddingContext";
 
@@ -37,6 +43,7 @@ const Home = () => {
   const { weddingId } = useWedding();
   
   const [image, setImage] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const [userName, setUserName] = useState("User");
   const [wedding, setWedding] = useState(null);
 
@@ -85,7 +92,11 @@ const Home = () => {
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      const asset = result.assets[0];
+
+      setImage(asset.uri);
+
+      await uploadMedia(asset);
     }
   };
 
@@ -100,7 +111,11 @@ const Home = () => {
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      const asset = result.assets[0];
+
+    setImage(asset.uri);
+
+    await uploadMedia(asset);
     }
   };
 
@@ -110,6 +125,59 @@ const Home = () => {
       { text: "Gallery", onPress: openGallery },
       { text: "Cancel", style: "cancel" },
     ]);
+  };
+
+  const uploadMedia = async (asset) => {
+    try {
+      const user = auth.currentUser;
+
+      if (!user || !weddingId) {
+        Alert.alert("Error", "Wedding not found.");
+        return;
+      }
+
+      setUploading(true);
+
+      const mediaType = asset.type;
+
+      console.log("Uploading to Cloudinary...");
+
+      // upload to Cloudinary
+      const cloudinaryData = await uploadToCloudinary(asset);
+
+      console.log("Saving to Firestore...");
+
+      // save metadata
+      await addDoc(
+        collection(db, "weddings", weddingId, "media"),
+        {
+          uploadedBy: user.uid,
+          type: mediaType,
+
+          url: cloudinaryData.secure_url,
+          publicId: cloudinaryData.public_id,
+
+          width: cloudinaryData.width || null,
+          height: cloudinaryData.height || null,
+
+          createdAt: serverTimestamp(),
+        }
+      );
+
+      Alert.alert(
+        "Upload Complete",
+        `${mediaType === "video" ? "Video" : "Photo"} uploaded successfully.`
+      );
+    } catch (error) {
+      console.log("Upload error:", error);
+
+      Alert.alert(
+        "Upload Failed",
+        error.message || "Something went wrong."
+      );
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -152,6 +220,7 @@ const Home = () => {
         {/* UPLOAD BUTTON */}
         <TouchableOpacity
           onPress={showOptions}
+          disabled={uploading}
           className="flex-row bg-[#7C5CFC] p-4 rounded-xl items-center justify-center gap-2 shadow-sm"
         >
           <Ionicons name="camera" size={24} color="#fff" />
@@ -159,7 +228,7 @@ const Home = () => {
             className="text-white text-[16px]"
             style={{ fontFamily: "Poppins_500Medium" }}
           >
-            Upload Photo or Video
+            {uploading ? "Uploading..." : "Upload Photo or Video"}
           </Text>
         </TouchableOpacity>
 
