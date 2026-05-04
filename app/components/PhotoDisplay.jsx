@@ -1,25 +1,81 @@
-import { View, Text, Image } from "react-native";
+import { View, Text, Image, ActivityIndicator } from "react-native";
+import { useEffect, useState } from "react";
+
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+} from "firebase/firestore";
+
+import { db } from "../../lib/firebase";
+import { useWedding } from "../../context/WeddingContext";
 
 const PhotoDisplay = () => {
+  const { weddingId } = useWedding();
+
+  const [photos, setPhotos] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!weddingId) {
+      setPhotos([]);
+      setLoading(false);
+      return;
+    }
+
+    const q = query(
+      collection(db, "weddings", weddingId, "media"),
+      orderBy("createdAt", "desc")
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const media = snapshot.docs
+          .map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+          .filter((item) => item.type === "image");
+
+        setPhotos(media);
+        setLoading(false);
+      },
+      (error) => {
+        console.log("Photo fetch error:", error);
+        setLoading(false);
+      }
+    );
+
+    return unsubscribe;
+  }, [weddingId]);
+
   return (
     <View className="gap-2.5">
-      <Text className="text-[18px] font-semibold">Photos</Text>
+      <Text className="text-[18px] font-semibold">
+        Photos ({photos.length})
+      </Text>
 
-      <View className="flex-row flex-wrap justify-between">
-        {[1, 2, 3, 4, 5, 6].map((item) => (
-          <View
-            key={item}
-            className="w-[30%] h-[90px] bg-[#D9D9D9] rounded-[15px] mb-2.5 justify-center items-center"
-          >
-            <Image
-              source={require("../../assets/photoPlaceholder.png")}
-              className="w-[40px] h-[40px] opacity-40"
-            />
-          </View>
-        ))}
-      </View>
-
-      <Text className="self-end text-[#333]">more</Text>
+      {loading ? (
+        <ActivityIndicator />
+      ) : (
+        <View className="flex-row flex-wrap justify-between">
+          {photos.length > 0 ? (
+            photos.map((photo) => (
+              <Image
+                key={photo.id}
+                source={{ uri: photo.url }}
+                className="w-[30%] h-[90px] rounded-[15px] mb-2.5"
+              />
+            ))
+          ) : (
+            <Text className="text-[#777]">
+              No photos yet.
+            </Text>
+          )}
+        </View>
+      )}
     </View>
   );
 };

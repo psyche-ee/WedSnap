@@ -6,12 +6,14 @@ import {
   Alert,
   ScrollView,
 } from "react-native";
+
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   useFonts,
   Poppins_500Medium,
   Poppins_400Regular,
 } from "@expo-google-fonts/poppins";
+
 import * as ImagePicker from "expo-image-picker";
 import { useState, useEffect } from "react";
 
@@ -20,16 +22,14 @@ import {
   getDoc,
   collection,
   addDoc,
-  serverTimestamp
+  serverTimestamp,
 } from "firebase/firestore";
 
 import { uploadToCloudinary } from "../lib/cloudinary";
-
 import { auth, db } from "../lib/firebase";
 import { useWedding } from "../context/WeddingContext";
 
 import PhotoDisplay from "./components/PhotoDisplay";
-import VideoDisplay from "./components/VideoDisplay";
 import Navigation from "./components/Navigation";
 import { Ionicons } from "@expo/vector-icons";
 import Developers from "./components/Developers";
@@ -41,35 +41,34 @@ const Home = () => {
   });
 
   const { weddingId } = useWedding();
-  
-  const [image, setImage] = useState(null);
+
+  const [preview, setPreview] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [userName, setUserName] = useState("User");
   const [wedding, setWedding] = useState(null);
 
-  // 🔥 FETCH USER NAME FROM FIRESTORE
+  // 🔥 FETCH DATA
   useEffect(() => {
     const fetchData = async () => {
       try {
         const user = auth.currentUser;
         if (!user) return;
 
-        // 👤 USER (always fetch)
         const userSnap = await getDoc(doc(db, "users", user.uid));
         if (userSnap.exists()) {
           setUserName(userSnap.data().name || "User");
         }
 
-        // 💍 WEDDING (only if weddingId exists)
         if (weddingId) {
-          const weddingSnap = await getDoc(doc(db, "weddings", weddingId));
+          const weddingSnap = await getDoc(
+            doc(db, "weddings", weddingId)
+          );
+
           if (weddingSnap.exists()) {
             setWedding(weddingSnap.data());
           } else {
             setWedding(null);
           }
-        } else {
-          setWedding(null);
         }
       } catch (error) {
         console.log(error);
@@ -81,52 +80,56 @@ const Home = () => {
 
   if (!fontsLoaded) return null;
 
-  // 📷 CAMERA
-  const openCamera = async () => {
-    const permission = await ImagePicker.requestCameraPermissionsAsync();
+  // 📸 PHOTO CAMERA ONLY
+  const openPhotoCamera = async () => {
+    const permission =
+      await ImagePicker.requestCameraPermissionsAsync();
+
     if (!permission.granted) return;
 
     const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
     });
 
     if (!result.canceled) {
       const asset = result.assets[0];
 
-      setImage(asset.uri);
-
+      setPreview(asset);
       await uploadMedia(asset);
     }
   };
 
   // 📁 GALLERY
   const openGallery = async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permission =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
     if (!permission.granted) return;
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
     });
 
     if (!result.canceled) {
       const asset = result.assets[0];
 
-    setImage(asset.uri);
-
-    await uploadMedia(asset);
+      setPreview(asset);
+      await uploadMedia(asset);
     }
   };
 
+  // 📌 OPTIONS (PHOTO ONLY)
   const showOptions = () => {
-    Alert.alert("Upload", "Choose an option", [
-      { text: "Camera", onPress: openCamera },
+    Alert.alert("Upload Photo", "Choose an option", [
+      { text: "Take Photo", onPress: openPhotoCamera },
       { text: "Gallery", onPress: openGallery },
       { text: "Cancel", style: "cancel" },
     ]);
   };
 
+  // ☁️ UPLOAD PHOTO ONLY
   const uploadMedia = async (asset) => {
     try {
       const user = auth.currentUser;
@@ -138,21 +141,15 @@ const Home = () => {
 
       setUploading(true);
 
-      const mediaType = asset.type;
+      console.log("Uploading photo...");
 
-      console.log("Uploading to Cloudinary...");
-
-      // upload to Cloudinary
       const cloudinaryData = await uploadToCloudinary(asset);
 
-      console.log("Saving to Firestore...");
-
-      // save metadata
       await addDoc(
         collection(db, "weddings", weddingId, "media"),
         {
           uploadedBy: user.uid,
-          type: mediaType,
+          type: "image",
 
           url: cloudinaryData.secure_url,
           publicId: cloudinaryData.public_id,
@@ -164,12 +161,9 @@ const Home = () => {
         }
       );
 
-      Alert.alert(
-        "Upload Complete",
-        `${mediaType === "video" ? "Video" : "Photo"} uploaded successfully.`
-      );
+      Alert.alert("Success", "Photo uploaded successfully!");
     } catch (error) {
-      console.log("Upload error:", error);
+      console.log(error);
 
       Alert.alert(
         "Upload Failed",
@@ -186,6 +180,7 @@ const Home = () => {
         contentContainerClassName="px-5 gap-5 pb-20"
         showsVerticalScrollIndicator={false}
       >
+        {/* HEADER */}
         <View className="pt-5">
           <Text
             className="text-[22px]"
@@ -205,7 +200,9 @@ const Home = () => {
               <Text
                 style={{ fontFamily: "Poppins_400Regular", color: "#777" }}
               >
-                {new Date(wedding.dateTime.seconds * 1000).toLocaleDateString()}
+                {new Date(
+                  wedding.dateTime.seconds * 1000
+                ).toLocaleDateString()}
               </Text>
 
               <Text
@@ -224,27 +221,25 @@ const Home = () => {
           className="flex-row bg-[#7C5CFC] p-4 rounded-xl items-center justify-center gap-2 shadow-sm"
         >
           <Ionicons name="camera" size={24} color="#fff" />
+
           <Text
             className="text-white text-[16px]"
             style={{ fontFamily: "Poppins_500Medium" }}
           >
-            {uploading ? "Uploading..." : "Upload Photo or Video"}
+            {uploading ? "Uploading..." : "Upload Photo"}
           </Text>
         </TouchableOpacity>
 
         {/* PREVIEW */}
-        {image && (
+        {preview && (
           <Image
-            source={{ uri: image }}
+            source={{ uri: preview.uri }}
             className="w-[200px] h-[200px] mt-2 rounded-xl self-center"
           />
         )}
 
         {/* CONTENT */}
         <PhotoDisplay />
-        <VideoDisplay />
-
-        <Developers />
       </ScrollView>
 
       <Navigation weddingId={weddingId} />
