@@ -127,7 +127,27 @@ const PhotoDisplay = () => {
               );
             })
           ) : (
-            <Text className="text-[#777]">No photos yet.</Text>
+            <View className="w-full items-center justify-center py-10">
+              
+              {/* ICON */}
+              <View className="bg-[#EFEAFE] p-6 rounded-full mb-4">
+                <Image
+                  source={require("../../assets/photoPlaceholder.png")}
+                  className="w-[50px] h-[50px] opacity-50"
+                />
+              </View>
+
+              {/* TITLE */}
+              <Text className="text-[16px] font-semibold text-[#333]">
+                No photos yet
+              </Text>
+
+              {/* SUBTEXT */}
+              <Text className="text-[#777] text-center mt-2 px-10">
+                Start capturing beautiful wedding moments.
+                Photos you upload will appear here instantly.
+              </Text>
+            </View>
           )}
         </View>
       )}
