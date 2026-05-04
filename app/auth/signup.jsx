@@ -74,7 +74,7 @@ const Signup = () => {
       });
 
       Alert.alert("Success", "Account created!");
-      router.replace("/dashboard");
+      router.replace("/home");
     } catch (error) {
       Alert.alert("Signup Error", error.message);
     } finally {

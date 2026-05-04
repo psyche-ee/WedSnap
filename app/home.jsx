@@ -20,7 +20,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { auth, db } from "../lib/firebase";
-import { useLocalSearchParams } from "expo-router";
+import { useWedding } from "../context/WeddingContext";
 
 import PhotoDisplay from "./components/PhotoDisplay";
 import VideoDisplay from "./components/VideoDisplay";
@@ -34,8 +34,8 @@ const Home = () => {
     Poppins_400Regular,
   });
 
-  const { weddingId } = useLocalSearchParams();
-
+  const { weddingId } = useWedding();
+  
   const [image, setImage] = useState(null);
   const [userName, setUserName] = useState("User");
   const [wedding, setWedding] = useState(null);
@@ -45,18 +45,24 @@ const Home = () => {
     const fetchData = async () => {
       try {
         const user = auth.currentUser;
-        if (!user || !weddingId) return;
+        if (!user) return;
 
-        // 👤 USER
+        // 👤 USER (always fetch)
         const userSnap = await getDoc(doc(db, "users", user.uid));
         if (userSnap.exists()) {
           setUserName(userSnap.data().name || "User");
         }
 
-        // 💍 WEDDING
-        const weddingSnap = await getDoc(doc(db, "weddings", weddingId));
-        if (weddingSnap.exists()) {
-          setWedding(weddingSnap.data());
+        // 💍 WEDDING (only if weddingId exists)
+        if (weddingId) {
+          const weddingSnap = await getDoc(doc(db, "weddings", weddingId));
+          if (weddingSnap.exists()) {
+            setWedding(weddingSnap.data());
+          } else {
+            setWedding(null);
+          }
+        } else {
+          setWedding(null);
         }
       } catch (error) {
         console.log(error);

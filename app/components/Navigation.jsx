@@ -44,12 +44,11 @@ const Navigation = ({ weddingId }) => {
     const active = isActive(route);
 
     const handlePress = () => {
-      if (!weddingId) {
-        Alert.alert("Error", "No wedding selected");
-        return;
+      if (weddingId) {
+        router.push(`${route}?weddingId=${weddingId}`);
+      } else {
+        router.push(route); // allow navigation without wedding
       }
-
-      router.push(`${route}?weddingId=${weddingId}`);
     };
 
     return (
@@ -95,7 +94,7 @@ const Navigation = ({ weddingId }) => {
       <NavItem route="/home" icon="home" />
 
       {/* Gallery */}
-      <NavItem route="/dashboard" icon="images" />
+      <NavItem route="/weddingEntry" icon="images" />
 
       {/* CAMERA (CENTER BUTTON) */}
       <TouchableOpacity
