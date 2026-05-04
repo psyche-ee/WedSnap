@@ -6,6 +6,11 @@ export const WeddingProvider = ({ children }) => {
   const [weddingId, setWeddingId] = useState(null);
   const [wedding, setWedding] = useState(null);
 
+  const resetWedding = () => {
+    setWeddingId(null);
+    setWedding(null);
+  };
+
   return (
     <WeddingContext.Provider
       value={{
@@ -13,6 +18,7 @@ export const WeddingProvider = ({ children }) => {
         setWeddingId,
         wedding,
         setWedding,
+        resetWedding,
       }}
     >
       {children}
