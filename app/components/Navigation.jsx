@@ -50,7 +50,7 @@ const Navigation = () => {
     <View className="absolute bottom-5 left-5 right-5 flex-row justify-around items-center bg-white py-3 rounded-full shadow-lg">
 
       {/* Home */}
-      <Link href="/snap" asChild>
+      <Link href="/home" asChild>
         <TouchableOpacity
           className={`w-[50px] h-[50px] rounded-full justify-center items-center ${
             isActive("/snap") ? "bg-[#6A4C93]" : "bg-[#F3F0FA]"
