@@ -31,6 +31,8 @@ import {
   where,
   getDocs,
   addDoc,
+  doc,
+  getDoc,
   updateDoc,
   arrayUnion,
   serverTimestamp,
@@ -60,6 +62,7 @@ const Dashboard = () => {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [loading, setLoading] = useState(false);
+  const [organizerName, setOrganizerName] = useState("");
 
   const { weddingId, setWeddingId, wedding, setWedding } = useWedding();
   const hasWedding = !!weddingId || !!wedding;
@@ -90,6 +93,69 @@ const Dashboard = () => {
       hide.remove();
     };
   }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const resolveOrganizerName = async () => {
+      if (!wedding) {
+        setOrganizerName("");
+        return;
+      }
+
+      if (wedding.organizerName) {
+        setOrganizerName(String(wedding.organizerName).trim());
+        return;
+      }
+
+      const currentUser = auth.currentUser;
+      const weddingOwnerId = wedding.userId
+        ? String(wedding.userId).trim()
+        : "";
+
+      if (currentUser && weddingOwnerId && currentUser.uid === weddingOwnerId) {
+        const selfName = String(
+          currentUser.displayName ||
+            currentUser.email?.split("@")[0] ||
+            "Organizer",
+        ).trim();
+        setOrganizerName(selfName);
+        return;
+      }
+
+      if (!weddingOwnerId) {
+        setOrganizerName("");
+        return;
+      }
+
+      try {
+        const ownerRef = doc(db, "users", weddingOwnerId);
+        const ownerSnap = await getDoc(ownerRef);
+        if (!mounted) return;
+
+        if (ownerSnap.exists()) {
+          const ownerData = ownerSnap.data();
+          const resolvedName = String(
+            ownerData.name ||
+              ownerData.displayName ||
+              ownerData.email ||
+              "Organizer",
+          ).trim();
+          setOrganizerName(resolvedName);
+        } else {
+          setOrganizerName("Organizer");
+        }
+      } catch (err) {
+        if (mounted) setOrganizerName("Organizer");
+      }
+    };
+
+    resolveOrganizerName();
+
+    return () => {
+      mounted = false;
+    };
+  }, [wedding]);
 
   if (!fontsLoaded) return null;
 
@@ -161,7 +227,15 @@ const Dashboard = () => {
       });
 
       setCreateModal(false);
-      setWedding({ id: docRef.id, spouseName, location, inviteCode, dateTime });
+      setWedding({
+        id: docRef.id,
+        userId: user.uid,
+        organizerName: user.displayName || user.email?.split("@")[0] || "",
+        spouseName,
+        location,
+        inviteCode,
+        dateTime,
+      });
       setWeddingId(docRef.id);
 
       Alert.alert("Success", `Invite Code: ${inviteCode}`);
@@ -172,6 +246,26 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getWeddingCardTitle = () => {
+    const toPascalCase = (value) =>
+      String(value || "")
+        .trim()
+        .split(/[^a-zA-Z0-9]+/)
+        .filter(Boolean)
+        .map(
+          (part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase(),
+        )
+        .join("");
+
+    const spouse = toPascalCase(wedding?.spouseName);
+    const organizer = toPascalCase(organizerName);
+
+    if (spouse && organizer) return `${spouse} & ${organizer}`;
+    if (spouse) return spouse;
+    if (organizer) return organizer;
+    return "Wedding";
   };
 
   return (
@@ -207,7 +301,7 @@ const Dashboard = () => {
                   className="text-white text-xl"
                   style={{ fontFamily: "Poppins_500Medium" }}
                 >
-                  {wedding.spouseName}
+                  {getWeddingCardTitle()}
                 </Text>
                 <Text className="text-white/90 text-sm mt-0.5">
                   📍 {wedding.location}
@@ -261,7 +355,7 @@ const Dashboard = () => {
             </View>
 
             <Text className="text-gray-500 mt-3 text-sm">
-              Hosted by you • Participants: {wedding.participants?.length ?? 1}
+              Participants: {wedding.participants?.length ?? 1}
             </Text>
           </View>
         </View>
