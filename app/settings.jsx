@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Animated,
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -26,6 +27,8 @@ import Navigation from "./components/Navigation";
 
 import { useWedding } from "../context/WeddingContext";
 
+import { useRef, useState } from "react";
+
 export default function Settings() {
   const user = auth.currentUser;
 
@@ -37,6 +40,17 @@ export default function Settings() {
   const router = useRouter();
 
   const { resetWedding } = useWedding();
+
+  // 🔥 ANIMATION VALUES
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const overlayOpacityAnim = useRef(
+    new Animated.Value(0)
+  ).current;
+  const spinnerRotateAnim = useRef(
+    new Animated.Value(0)
+  ).current;
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   if (!fontsLoaded) return null;
 
@@ -61,14 +75,56 @@ export default function Settings() {
   const userInitial =
     displayName.charAt(0).toUpperCase();
 
+  // 🔥 Start spinner animation
+  const startSpinner = () => {
+    Animated.loop(
+      Animated.timing(spinnerRotateAnim, {
+        toValue: 1,
+        duration: 1500,
+        useNativeDriver: true,
+      })
+    ).start();
+  };
+
   const handleLogout = async () => {
     try {
-      resetWedding();
+      setIsLoggingOut(true);
+      startSpinner();
 
-      await signOut(auth);
-
-      router.replace("/auth/login");
+      // 🔥 Show overlay and fade out content
+      Animated.parallel([
+        Animated.timing(overlayOpacityAnim, {
+          toValue: 0.6,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 0.3,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start(async () => {
+        // Perform logout
+        resetWedding();
+        await signOut(auth);
+        router.replace("/auth/login");
+      });
     } catch (error) {
+      // Reset animations on error
+      setIsLoggingOut(false);
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(overlayOpacityAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
       Alert.alert(
         "Error",
         "Failed to log out. Please try again."
@@ -106,9 +162,7 @@ export default function Settings() {
             name={icon}
             size={20}
             color={
-              danger
-                ? "#DC2626"
-                : "#7C5CFC"
+              danger ? "#DC2626" : "#7C5CFC"
             }
           />
         </View>
@@ -117,9 +171,7 @@ export default function Settings() {
           className="ml-4"
           style={{
             fontFamily: "Poppins_400Regular",
-            color: danger
-              ? "#DC2626"
-              : "#333",
+            color: danger ? "#DC2626" : "#333",
           }}
         >
           {title}
@@ -136,122 +188,166 @@ export default function Settings() {
     </TouchableOpacity>
   );
 
+  const spinRotate = spinnerRotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "360deg"],
+  });
+
   return (
     <SafeAreaView className="flex-1 bg-[#F7F5FF]">
-      <ScrollView
-        contentContainerClassName="px-5 pb-24"
-        showsVerticalScrollIndicator={false}
+      {/* 🔥 OVERLAY */}
+      <Animated.View
+        pointerEvents={isLoggingOut ? "auto" : "none"}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "#1a1a1a",
+          opacity: overlayOpacityAnim,
+          zIndex: 10,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
       >
-        {/* Header */}
-        <View className="mt-5 mb-4">
-          <Text
-            className="text-[26px]"
+        {/* 🔥 SPINNER */}
+        {isLoggingOut && (
+          <Animated.View
             style={{
-              fontFamily: "Poppins_500Medium",
-              color: "#333",
+              transform: [{ rotate: spinRotate }],
             }}
           >
-            Settings
-          </Text>
+            <Ionicons
+              name="refresh-circle"
+              size={48}
+              color="#fff"
+            />
+          </Animated.View>
+        )}
+      </Animated.View>
 
-          <Text
-            className="text-sm mt-1"
-            style={{
-              fontFamily: "Poppins_400Regular",
-              color: "#777",
-            }}
-          >
-            Manage your account preferences
-          </Text>
-        </View>
-
-        {/* Profile Card */}
-        <View
-          className="bg-white rounded-3xl p-6 items-center mb-6"
-          style={{
-            shadowColor: "#000",
-            shadowOffset: {
-              width: 0,
-              height: 2,
-            },
-            shadowOpacity: 0.04,
-            shadowRadius: 4,
-            elevation: 2,
-          }}
+      {/* 🔥 MAIN CONTENT */}
+      <Animated.View
+        style={{
+          flex: 1,
+          opacity: fadeAnim,
+        }}
+      >
+        <ScrollView
+          contentContainerClassName="px-5 pb-24"
+          showsVerticalScrollIndicator={false}
         >
-          <View
-            className="w-[90px] h-[90px] rounded-full justify-center items-center mb-4"
-            style={{
-              backgroundColor: "#F2EEFF",
-            }}
-          >
+          {/* Header */}
+          <View className="mt-5 mb-4">
             <Text
-              className="text-[34px]"
+              className="text-[26px]"
               style={{
-                fontFamily:
-                  "Poppins_500Medium",
-                color: "#7C5CFC",
+                fontFamily: "Poppins_500Medium",
+                color: "#333",
               }}
             >
-              {userInitial}
+              Settings
+            </Text>
+
+            <Text
+              className="text-sm mt-1"
+              style={{
+                fontFamily:
+                  "Poppins_400Regular",
+                color: "#777",
+              }}
+            >
+              Manage your account preferences
             </Text>
           </View>
 
-          <Text
-            className="text-lg"
+          {/* Profile Card */}
+          <View
+            className="bg-white rounded-3xl p-6 items-center mb-6"
             style={{
-              fontFamily:
-                "Poppins_500Medium",
-              color: "#333",
+              shadowColor: "#000",
+              shadowOffset: {
+                width: 0,
+                height: 2,
+              },
+              shadowOpacity: 0.04,
+              shadowRadius: 4,
+              elevation: 2,
             }}
           >
-            {displayName}
-          </Text>
+            <View
+              className="w-[90px] h-[90px] rounded-full justify-center items-center mb-4"
+              style={{
+                backgroundColor: "#F2EEFF",
+              }}
+            >
+              <Text
+                className="text-[34px]"
+                style={{
+                  fontFamily:
+                    "Poppins_500Medium",
+                  color: "#7C5CFC",
+                }}
+              >
+                {userInitial}
+              </Text>
+            </View>
 
-          <Text
-            className="text-sm mt-1"
-            style={{
-              fontFamily:
-                "Poppins_400Regular",
-              color: "#777",
-            }}
-          >
-            {email}
-          </Text>
-        </View>
+            <Text
+              className="text-lg"
+              style={{
+                fontFamily:
+                  "Poppins_500Medium",
+                color: "#333",
+              }}
+            >
+              {displayName}
+            </Text>
 
-        {/* Options */}
-        <View className="gap-3">
-          <SettingItem
-            icon="person"
-            title="Edit Profile"
-            onPress={() =>
-              router.push(
-                "/edit_profile"
-              )
-            }
-          />
+            <Text
+              className="text-sm mt-1"
+              style={{
+                fontFamily:
+                  "Poppins_400Regular",
+                color: "#777",
+              }}
+            >
+              {email}
+            </Text>
+          </View>
 
-          <SettingItem
-            icon="lock-closed"
-            title="Change Password"
-            onPress={() =>
-              router.push(
-                "/change_password"
-              )
-            }
-          />
+          {/* Options */}
+          <View className="gap-3">
+            <SettingItem
+              icon="person"
+              title="Edit Profile"
+              onPress={() =>
+                router.push("/edit_profile")
+              }
+            />
 
-          <SettingItem
-            icon="log-out"
-            title="Log Out"
-            danger
-            onPress={handleLogout}
-          />
-        </View>
-      </ScrollView>
+            <SettingItem
+              icon="lock-closed"
+              title="Change Password"
+              onPress={() =>
+                router.push(
+                  "/change_password"
+                )
+              }
+            />
 
-      <Navigation />
+            <SettingItem
+              icon="log-out"
+              title="Log Out"
+              danger
+              onPress={handleLogout}
+            />
+          </View>
+        </ScrollView>
+
+        <Navigation />
+      </Animated.View>
     </SafeAreaView>
   );
 }
