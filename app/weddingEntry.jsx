@@ -76,6 +76,8 @@ const Dashboard = () => {
   // track keyboard height so modal can sit flush above it (no visible gap)
   const [keyboardHeight, setKeyboardHeight] = useState(0);
 
+  const [copied, setCopied] = useState(false);
+
   const screenHeight = Dimensions.get("window").height;
 
   useEffect(() => {
@@ -217,19 +219,21 @@ const Dashboard = () => {
             </View>
 
             <View className="absolute right-4 top-4 bg-white/90 rounded-full px-3 py-1 flex-row items-center">
-              <Text className="text-sm text-[#7C5CFC] font-semibold mr-2">{wedding.inviteCode}</Text>
+              <Text className="text-sm text-[#7C5CFC] font-semibold mr-3">{wedding.inviteCode}</Text>
               <Pressable
                 onPress={async () => {
                   try {
                     await Clipboard.setStringAsync(wedding.inviteCode || "");
-                    Alert.alert("Copied", "Invite code copied to clipboard");
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 1400);
                   } catch (err) {
                     Alert.alert("Error", "Could not copy code");
                   }
                 }}
-                hitSlop={6}
+                className="p-2 rounded-full"
+                style={copied ? { backgroundColor: "#34D399" } : { backgroundColor: "transparent" }}
               >
-                <Ionicons name="copy-outline" size={16} color="#7C5CFC" />
+                <Ionicons name={copied ? "checkmark" : "copy-outline"} size={16} color={copied ? "white" : "#7C5CFC"} />
               </Pressable>
             </View>
           </ImageBackground>
