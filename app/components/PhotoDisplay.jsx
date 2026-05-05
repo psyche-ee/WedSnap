@@ -8,18 +8,36 @@ import {
   Modal,
   ScrollView,
   Platform,
+  Animated,
 } from "react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import * as FileSystem from "expo-file-system/legacy";
 import * as MediaLibrary from "expo-media-library";
 
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  getDoc,
+} from "firebase/firestore";
+import { Ionicons } from "@expo/vector-icons";
+
+const AnimatedIcon = Animated.createAnimatedComponent(Ionicons);
 
 import { useWedding } from "../../context/WeddingContext";
 
 import { db, auth } from "../../lib/firebase";
 import { deleteDoc, doc } from "firebase/firestore";
+
+const toPascalCase = (value) =>
+  String(value || "")
+    .trim()
+    .split(/[^a-zA-Z0-9]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join("");
 
 const PhotoDisplay = () => {
   const { weddingId } = useWedding();
@@ -31,6 +49,28 @@ const PhotoDisplay = () => {
   const [downloadingPhotoId, setDownloadingPhotoId] = useState(null);
   const [uploaderMap, setUploaderMap] = useState({});
   const [collapsedGroups, setCollapsedGroups] = useState({});
+
+  const rotationRefs = useRef({});
+
+  const handleToggleGroup = (uploaderId) => {
+    setCollapsedGroups((prev) => {
+      const newVal = !prev[uploaderId];
+      const next = { ...prev, [uploaderId]: newVal };
+
+      if (!rotationRefs.current[uploaderId]) {
+        rotationRefs.current[uploaderId] = new Animated.Value(newVal ? 0 : 1);
+      }
+
+      const toValue = newVal ? 0 : 1;
+      Animated.timing(rotationRefs.current[uploaderId], {
+        toValue,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (!weddingId) {
@@ -73,26 +113,50 @@ const PhotoDisplay = () => {
         // fetch uploader display names (best-effort)
         const fetchUploaderNames = async () => {
           const map = {};
+
           await Promise.all(
             Array.from(uploaderIds).map(async (uid) => {
               try {
                 if (uid === "unknown") {
-                  map[uid] = "Unknown";
+                  map[uid] = toPascalCase("Unknown");
                   return;
                 }
-                const uRef = doc(db, "users", uid);
-                const uSnap = await uRef.get?.();
-                // firestore v9 getDoc used earlier; use getDoc
+
+                // try to read user doc from Firestore users collection
+                const uSnap = await getDoc(doc(db, "users", uid));
+                if (uSnap && uSnap.exists && uSnap.exists()) {
+                  const data = uSnap.data();
+                  // prefer common name fields
+                  const name =
+                    data.displayName ||
+                    data.name ||
+                    (data.firstName && data.lastName
+                      ? `${data.firstName} ${data.lastName}`
+                      : null);
+                  map[uid] = toPascalCase(name || data.username || uid);
+                  return;
+                }
+
+                // fallback to any uploader name embedded in the media doc
+                const fromMedia = media.find(
+                  (m) => (m.uploadedBy || "unknown") === uid,
+                );
+                if (fromMedia) {
+                  map[uid] = toPascalCase(fromMedia.uploadedByName || uid);
+                  return;
+                }
+
+                map[uid] = toPascalCase(uid);
               } catch (e) {
-                // ignore — we'll fill later
+                // ignore and fallback below
               }
             }),
           );
 
-          // simple best-effort map from available photos data
+          // final fallback: ensure every uid has a value
           media.forEach((m) => {
             const uid = m.uploadedBy || "unknown";
-            if (!map[uid]) map[uid] = m.uploadedByName || uid;
+            if (!map[uid]) map[uid] = toPascalCase(m.uploadedByName || uid);
           });
 
           setUploaderMap(map);
@@ -194,7 +258,9 @@ const PhotoDisplay = () => {
 
   return (
     <View className="gap-2.5">
-      <Text className="text-[18px] font-semibold">Photos ({photos.length})</Text>
+      <Text className="text-[18px] font-semibold">
+        Photos ({photos.length})
+      </Text>
 
       {loading ? (
         <ActivityIndicator />
@@ -203,23 +269,63 @@ const PhotoDisplay = () => {
           {photoGroups.length > 0 ? (
             photoGroups.map((group) => {
               const uploaderId = group.uploaderId;
-              const uploaderName = uploaderMap[uploaderId] || (uploaderId === "unknown" ? "Unknown" : uploaderId);
+              const uploaderName =
+                uploaderMap[uploaderId] ||
+                (uploaderId === "unknown" ? "Unknown" : uploaderId);
               const collapsed = !!collapsedGroups[uploaderId];
 
               return (
                 <View key={uploaderId} className="mb-4">
                   <Pressable
-                    onPress={() =>
-                      setCollapsedGroups((prev) => ({ ...prev, [uploaderId]: !prev[uploaderId] }))
-                    }
+                    onPress={() => handleToggleGroup(uploaderId)}
                     className="flex-row items-center justify-between mb-3"
                   >
-                    <Text style={{ fontFamily: "Poppins_500Medium", color: "#333" }}>
+                    <Text
+                      style={{ fontFamily: "Poppins_500Medium", color: "#333" }}
+                    >
                       {uploaderName}
                     </Text>
-                    <Text style={{ fontFamily: "Poppins_400Regular", color: "#777" }}>
-                      {group.photos.length} {group.photos.length === 1 ? "photo" : "photos"}
-                    </Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 8,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontFamily: "Poppins_400Regular",
+                          color: "#777",
+                          marginRight: 6,
+                        }}
+                      >
+                        {group.photos.length}{" "}
+                        {group.photos.length === 1 ? "photo" : "photos"}
+                      </Text>
+                      {(() => {
+                        if (!rotationRefs.current[uploaderId]) {
+                          rotationRefs.current[uploaderId] = new Animated.Value(
+                            collapsed ? 0 : 1,
+                          );
+                        }
+
+                        const rotate = rotationRefs.current[
+                          uploaderId
+                        ].interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ["0deg", "180deg"],
+                        });
+
+                        return (
+                          <AnimatedIcon
+                            name="chevron-down"
+                            size={18}
+                            color="#777"
+                            style={{ transform: [{ rotate }] }}
+                          />
+                        );
+                      })()}
+                    </View>
                   </Pressable>
 
                   {!collapsed && (
@@ -230,20 +336,47 @@ const PhotoDisplay = () => {
 
                         // responsive widths: 100% for 1, 48% for 2, 32% for 3+
                         const count = group.photos.length;
-                        const widthStyle = count === 1 ? { width: "100%" } : count === 2 ? { width: "48%" } : { width: "32%" };
+                        const widthStyle =
+                          count === 1
+                            ? { width: "100%" }
+                            : count === 2
+                              ? { width: "48%" }
+                              : { width: "32%" };
 
                         return (
-                          <View key={photo.id} style={{ ...widthStyle, marginBottom: 10 }}>
+                          <View
+                            key={photo.id}
+                            style={{ ...widthStyle, marginBottom: 10 }}
+                          >
                             <Pressable onPress={() => handleOpenPhoto(photo)}>
-                              <Image source={{ uri: photo.url }} style={{ width: "100%", height: 110, borderRadius: 15 }} />
+                              <Image
+                                source={{ uri: photo.url }}
+                                style={{
+                                  width: "100%",
+                                  height: 110,
+                                  borderRadius: 15,
+                                }}
+                              />
                             </Pressable>
 
                             {canDelete && (
                               <Pressable
-                                onPress={() => handleDelete(photo.id, photo.uploadedBy)}
-                                style={{ position: "absolute", right: 6, top: 6, backgroundColor: "#ef4444", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999 }}
+                                onPress={() =>
+                                  handleDelete(photo.id, photo.uploadedBy)
+                                }
+                                style={{
+                                  position: "absolute",
+                                  right: 6,
+                                  top: 6,
+                                  backgroundColor: "#ef4444",
+                                  paddingHorizontal: 8,
+                                  paddingVertical: 4,
+                                  borderRadius: 999,
+                                }}
                               >
-                                <Text style={{ color: "#fff", fontSize: 10 }}>Delete</Text>
+                                <Text style={{ color: "#fff", fontSize: 10 }}>
+                                  Delete
+                                </Text>
                               </Pressable>
                             )}
                           </View>
@@ -275,8 +408,8 @@ const PhotoDisplay = () => {
                 will appear here instantly.
               </Text>
             </View>
-            )}
-          </View>
+          )}
+        </View>
       )}
 
       <Modal
