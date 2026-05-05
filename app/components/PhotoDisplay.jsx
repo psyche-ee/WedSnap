@@ -391,10 +391,7 @@ const PhotoDisplay = () => {
             <View className="w-full items-center justify-center py-10">
               {/* ICON */}
               <View className="bg-[#EFEAFE] p-6 rounded-full mb-4">
-                <Image
-                  source={require("../../assets/photoPlaceholder.png")}
-                  className="w-[50px] h-[50px] opacity-50"
-                />
+                <Ionicons name="images" size={32} color="#7C5CFC" />
               </View>
 
               {/* TITLE */}
