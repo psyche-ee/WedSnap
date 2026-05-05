@@ -8,7 +8,6 @@ import {
 import { useLocalSearchParams } from "expo-router";
 
 import PhotoDisplay from "./components/PhotoDisplay";
-import VideoDisplay from "./components/VideoDisplay";
 import Navigation from "./components/Navigation";
 import Developers from "./components/Developers";
 
@@ -48,9 +47,7 @@ export default function Gallery() {
         {/* EMPTY STATE */}
         {!weddingId && (
           <View className="bg-white p-5 rounded-xl mt-5">
-            <Text
-              style={{ fontFamily: "Poppins_400Regular", color: "#777" }}
-            >
+            <Text style={{ fontFamily: "Poppins_400Regular", color: "#777" }}>
               No wedding selected. Please join or create a wedding first.
             </Text>
           </View>

@@ -32,6 +32,7 @@ import { useWedding } from "../context/WeddingContext";
 import PhotoDisplay from "./components/PhotoDisplay";
 import Navigation from "./components/Navigation";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import Developers from "./components/Developers";
 
 const Home = () => {
@@ -61,13 +62,23 @@ const Home = () => {
     const fetchData = async () => {
       try {
         const user = auth.currentUser;
-        if (!user || !weddingId) {
+        // fetch current user name even if no active wedding
+        if (user) {
+          const userSnap = await getDoc(doc(db, "users", user.uid));
+          if (userSnap.exists()) {
+            setUserName(toPascalCase(userSnap.data().name || "User"));
+          }
+        }
+
+        if (!weddingId) {
           setWedding(null);
+          setOrganizerName("");
           return;
         }
 
-        const userSnap = await getDoc(doc(db, "users", user.uid));
-        if (userSnap.exists()) {
+        // only fetch wedding when weddingId is present
+        const userSnap = user ? await getDoc(doc(db, "users", user.uid)) : null;
+        if (userSnap && userSnap.exists()) {
           setUserName(toPascalCase(userSnap.data().name || "User"));
         }
 
@@ -115,6 +126,7 @@ const Home = () => {
   }, [weddingId]);
 
   if (!fontsLoaded) return null;
+  const router = useRouter();
 
   // 📸 PHOTO CAMERA ONLY
   const openPhotoCamera = async () => {
@@ -204,22 +216,99 @@ const Home = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-[#F7F5FF]">
-      <ScrollView
-        contentContainerClassName="px-5 gap-5 pb-20"
-        showsVerticalScrollIndicator={false}
-      >
-        {/* HEADER */}
-        <View className="pt-5">
-          <View className="flex-row items-start justify-between">
-            <View style={{ flex: 1 }}>
-              <Text
-                className="text-[22px]"
-                style={{ fontFamily: "Poppins_500Medium", color: "#111" }}
-              >
-                Welcome, {userName}!
-              </Text>
+      {!wedding ? (
+        // 🎉 EMPTY STATE - No Active Wedding
+        <ScrollView
+          contentContainerClassName="flex-1 px-5 justify-center items-center pb-20"
+          showsVerticalScrollIndicator={false}
+        >
+          <View className="items-center">
+            {/* ICON */}
+            <View
+              className="bg-gradient-to-b from-[#E0D4FF] to-[#F0EAFF] p-6 rounded-full mb-6"
+              style={{
+                width: 120,
+                height: 120,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Image
+                source={require("../assets/wedsnap.png")}
+                style={{ width: 125, height: 125, opacity: 1 }}
+                resizeMode="contain"
+              />
+            </View>
 
-              {wedding ? (
+            {/* GREETING */}
+            <Text
+              className="text-[28px] text-center"
+              style={{
+                fontFamily: "Poppins_500Medium",
+                color: "#111",
+                marginBottom: 8,
+              }}
+            >
+              Welcome, {userName}!
+            </Text>
+
+            {/* SUBTITLE */}
+            <Text
+              style={{
+                fontFamily: "Poppins_400Regular",
+                color: "#666",
+                fontSize: 16,
+                textAlign: "center",
+                marginBottom: 24,
+                lineHeight: 24,
+              }}
+            >
+              Join an existing wedding or create a new one to start sharing
+              memories with your loved ones.
+            </Text>
+
+            {/* CTA BUTTONS */}
+            <View className="gap-3 w-full">
+              {/* JOIN / CREATE - go to wedding entry */}
+              <TouchableOpacity
+                onPress={() => router.push("/weddingEntry")}
+                className="bg-[#7C5CFC] rounded-2xl py-4 flex-row items-center justify-center gap-2 px-5"
+                style={{
+                  shadowColor: "#7C5CFC",
+                  shadowOffset: { width: 0, height: 8 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 16,
+                  elevation: 8,
+                }}
+              >
+                <Ionicons name="link-outline" size={20} color="#fff" />
+                <Text
+                  className="text-white text-[16px]"
+                  style={{ fontFamily: "Poppins_500Medium" }}
+                >
+                  Join or Create Wedding
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      ) : (
+        // 📸 ACTIVE WEDDING - Current Layout
+        <ScrollView
+          contentContainerClassName="px-5 gap-5 pb-20"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* HEADER */}
+          <View className="pt-5">
+            <View className="flex-row items-start justify-between">
+              <View style={{ flex: 1 }}>
+                <Text
+                  className="text-[22px]"
+                  style={{ fontFamily: "Poppins_500Medium", color: "#111" }}
+                >
+                  Welcome, {userName}!
+                </Text>
+
                 <Text
                   style={{
                     fontFamily: "Poppins_500Medium",
@@ -249,97 +338,77 @@ const Home = () => {
                     return "Wedding";
                   })()}
                 </Text>
-              ) : (
-                <Text
+              </View>
+
+              <View className="ml-3">
+                <View
+                  className="bg-white p-3 rounded-2xl"
                   style={{
-                    fontFamily: "Poppins_400Regular",
-                    color: "#777",
-                    marginTop: 6,
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.06,
+                    shadowRadius: 8,
+                    elevation: 4,
+                    minWidth: 140,
                   }}
                 >
-                  No active wedding
-                </Text>
-              )}
-            </View>
-
-            <View className="ml-3">
-              <View
-                className="bg-white p-3 rounded-2xl"
-                style={{
-                  shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.06,
-                  shadowRadius: 8,
-                  elevation: 4,
-                  minWidth: 140,
-                }}
-              >
-                {wedding ? (
-                  <>
-                    <Text
-                      style={{ fontFamily: "Poppins_500Medium", color: "#333" }}
-                    >
-                      {new Date(
-                        wedding.dateTime.seconds * 1000,
-                      ).toLocaleDateString()}
-                    </Text>
-
-                    <View className="flex-row items-center mt-2">
-                      <Ionicons
-                        name="location-outline"
-                        size={14}
-                        color="#F59E0B"
-                      />
-                      <Text
-                        style={{
-                          fontFamily: "Poppins_400Regular",
-                          color: "#777",
-                          marginLeft: 8,
-                        }}
-                      >
-                        {wedding.location}
-                      </Text>
-                    </View>
-                  </>
-                ) : (
                   <Text
-                    style={{ fontFamily: "Poppins_400Regular", color: "#777" }}
+                    style={{ fontFamily: "Poppins_500Medium", color: "#333" }}
                   >
-                    Join or create a wedding to get started
+                    {new Date(
+                      wedding.dateTime.seconds * 1000,
+                    ).toLocaleDateString()}
                   </Text>
-                )}
+
+                  <View className="flex-row items-center mt-2">
+                    <Ionicons
+                      name="location-outline"
+                      size={14}
+                      color="#F59E0B"
+                    />
+                    <Text
+                      style={{
+                        fontFamily: "Poppins_400Regular",
+                        color: "#777",
+                        marginLeft: 8,
+                      }}
+                    >
+                      {wedding.location}
+                    </Text>
+                  </View>
+                </View>
               </View>
             </View>
           </View>
-        </View>
 
-        {/* UPLOAD BUTTON */}
-        <TouchableOpacity
-          onPress={showOptions}
-          disabled={uploading}
-          className="flex-row bg-[#7C5CFC] p-4 rounded-xl items-center justify-center gap-2 shadow-sm"
-        >
-          <Ionicons name="camera" size={24} color="#fff" />
-
-          <Text
-            className="text-white text-[16px]"
-            style={{ fontFamily: "Poppins_500Medium" }}
+          {/* UPLOAD BUTTON */}
+          <TouchableOpacity
+            onPress={showOptions}
+            disabled={uploading}
+            className="flex-row bg-[#7C5CFC] p-4 rounded-xl items-center justify-center gap-2 shadow-sm"
           >
-            {uploading ? "Uploading..." : "Upload Photo"}
-          </Text>
-        </TouchableOpacity>
+            <Ionicons name="camera" size={24} color="#fff" />
 
-        {/* PREVIEW */}
-        {preview && (
-          <Image
-            source={{ uri: preview.uri }}
-            className="w-[200px] h-[200px] mt-2 rounded-xl self-center"
-          />
-        )}
+            <Text
+              className="text-white text-[16px]"
+              style={{ fontFamily: "Poppins_500Medium" }}
+            >
+              {uploading ? "Uploading..." : "Upload Photo"}
+            </Text>
+          </TouchableOpacity>
 
-        {/* CONTENT */}
-        <PhotoDisplay />
-      </ScrollView>
+          {/* PREVIEW */}
+          {preview && (
+            <Image
+              source={{ uri: preview.uri }}
+              className="w-[200px] h-[200px] mt-2 rounded-xl self-center"
+            />
+          )}
+
+          {/* CONTENT */}
+          <PhotoDisplay />
+        </ScrollView>
+      )}
 
       <Navigation weddingId={weddingId} />
     </SafeAreaView>
