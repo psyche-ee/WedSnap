@@ -31,11 +31,12 @@ export default function Settings() {
     Poppins_400Regular,
   });
 
-  if (!fontsLoaded) return null;
 
   const router = useRouter();
 
   const { resetWedding } = useWedding();
+
+  if (!fontsLoaded) return null;
 
   const handleLogout = async () => {
     try {
