@@ -1,4 +1,12 @@
-import { View, Text, ScrollView, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  ActivityIndicator,
+  Pressable,
+  Animated,
+  Easing,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   useFonts,
@@ -6,6 +14,7 @@ import {
   Poppins_400Regular,
 } from "@expo-google-fonts/poppins";
 import { Ionicons } from "@expo/vector-icons";
+import * as Clipboard from "expo-clipboard";
 
 import { useEffect, useState } from "react";
 
@@ -26,6 +35,10 @@ export default function Guests() {
   const [joinedWeddings, setJoinedWeddings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentUid, setCurrentUid] = useState(null);
+  const [collapsedGuestSections, setCollapsedGuestSections] = useState({});
+  const [copiedWeddingId, setCopiedWeddingId] = useState(null);
+  const [copyScale] = useState(new Animated.Value(1));
+  const [copyOpacity] = useState(new Animated.Value(1));
 
   useEffect(() => {
     let unsub = () => {};
@@ -129,6 +142,7 @@ export default function Guests() {
               id: wid,
               spouseName: (data.spouseName || "Wedding").trim(),
               location: (data.location || "").trim(),
+              inviteCode: (data.inviteCode || "").trim(),
               dateTime: data.dateTime,
               organizers: filtered.filter((x) => x.role === "Organizer"),
               coOrganizers: filtered.filter((x) => x.role === "Co-Organizer"),
@@ -154,6 +168,41 @@ export default function Guests() {
   }, []);
 
   if (!fontsLoaded) return null;
+
+  const handleCopyInviteCode = async (weddingId, inviteCode) => {
+    if (!inviteCode) return;
+
+    await Clipboard.setStringAsync(inviteCode);
+    setCopiedWeddingId(weddingId);
+
+    copyScale.setValue(0.8);
+    copyOpacity.setValue(0.5);
+
+    Animated.parallel([
+      Animated.spring(copyScale, {
+        toValue: 1,
+        useNativeDriver: true,
+        friction: 5,
+      }),
+      Animated.timing(copyOpacity, {
+        toValue: 1,
+        duration: 220,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    setTimeout(() => {
+      setCopiedWeddingId((prev) => (prev === weddingId ? null : prev));
+    }, 1300);
+  };
+
+  const toggleGuests = (weddingId) => {
+    setCollapsedGuestSections((prev) => ({
+      ...prev,
+      [weddingId]: !prev[weddingId],
+    }));
+  };
 
   const GuestCard = ({ guest }) => (
     <View
@@ -283,14 +332,47 @@ export default function Guests() {
                 {ownedWeddings.map((w) => (
                   <View key={w.id} className="mt-4">
                     <View className="bg-white p-3 rounded-2xl">
-                      <Text
-                        style={{
-                          fontFamily: "Poppins_500Medium",
-                          color: "#333",
-                        }}
-                      >
-                        {w.spouseName}
-                      </Text>
+                      <View className="flex-row items-center justify-between">
+                        <Text
+                          style={{
+                            fontFamily: "Poppins_500Medium",
+                            color: "#333",
+                          }}
+                        >
+                          {w.spouseName}
+                        </Text>
+
+                        {w.inviteCode ? (
+                          <Pressable
+                            onPress={() => handleCopyInviteCode(w.id, w.inviteCode)}
+                            className="flex-row items-center px-2 py-1 rounded-full"
+                            style={{ backgroundColor: "#F2EEFF" }}
+                          >
+                            <Animated.View
+                              style={{
+                                transform: [{ scale: copiedWeddingId === w.id ? copyScale : 1 }],
+                                opacity: copiedWeddingId === w.id ? copyOpacity : 1,
+                              }}
+                            >
+                              <Ionicons
+                                name={copiedWeddingId === w.id ? "checkmark" : "copy-outline"}
+                                size={14}
+                                color={copiedWeddingId === w.id ? "#16A34A" : "#7C5CFC"}
+                              />
+                            </Animated.View>
+                            <Text
+                              className="ml-1 text-xs"
+                              style={{
+                                fontFamily: "Poppins_500Medium",
+                                color: copiedWeddingId === w.id ? "#16A34A" : "#7C5CFC",
+                              }}
+                            >
+                              {copiedWeddingId === w.id ? "Copied" : w.inviteCode}
+                            </Text>
+                          </Pressable>
+                        ) : null}
+                      </View>
+
                       {w.location ? (
                         <Text
                           style={{
@@ -334,15 +416,24 @@ export default function Guests() {
 
                     {w.guests.length > 0 && (
                       <View>
-                        <SectionHeader
-                          title="Guests"
-                          count={w.guests.length}
-                          icon="person"
-                          color="#7C5CFC"
-                        />
-                        {w.guests.map((g) => (
-                          <GuestCard key={g.id} guest={g} />
-                        ))}
+                        <Pressable
+                          onPress={() => toggleGuests(w.id)}
+                          className="flex-row items-center justify-between mt-6 mb-3"
+                        >
+                          <SectionHeader
+                            title="Guests"
+                            count={w.guests.length}
+                            icon="person"
+                            color="#7C5CFC"
+                          />
+                          <Ionicons
+                            name={collapsedGuestSections[w.id] ? "chevron-down" : "chevron-up"}
+                            size={20}
+                            color="#7C5CFC"
+                          />
+                        </Pressable>
+                        {!collapsedGuestSections[w.id] &&
+                          w.guests.map((g) => <GuestCard key={g.id} guest={g} />)}
                       </View>
                     )}
                   </View>
@@ -362,14 +453,47 @@ export default function Guests() {
                 {joinedWeddings.map((w) => (
                   <View key={w.id} className="mt-4">
                     <View className="bg-white p-3 rounded-2xl">
-                      <Text
-                        style={{
-                          fontFamily: "Poppins_500Medium",
-                          color: "#333",
-                        }}
-                      >
-                        {w.spouseName}
-                      </Text>
+                      <View className="flex-row items-center justify-between">
+                        <Text
+                          style={{
+                            fontFamily: "Poppins_500Medium",
+                            color: "#333",
+                          }}
+                        >
+                          {w.spouseName}
+                        </Text>
+
+                        {w.inviteCode ? (
+                          <Pressable
+                            onPress={() => handleCopyInviteCode(w.id, w.inviteCode)}
+                            className="flex-row items-center px-2 py-1 rounded-full"
+                            style={{ backgroundColor: "#F2EEFF" }}
+                          >
+                            <Animated.View
+                              style={{
+                                transform: [{ scale: copiedWeddingId === w.id ? copyScale : 1 }],
+                                opacity: copiedWeddingId === w.id ? copyOpacity : 1,
+                              }}
+                            >
+                              <Ionicons
+                                name={copiedWeddingId === w.id ? "checkmark" : "copy-outline"}
+                                size={14}
+                                color={copiedWeddingId === w.id ? "#16A34A" : "#7C5CFC"}
+                              />
+                            </Animated.View>
+                            <Text
+                              className="ml-1 text-xs"
+                              style={{
+                                fontFamily: "Poppins_500Medium",
+                                color: copiedWeddingId === w.id ? "#16A34A" : "#7C5CFC",
+                              }}
+                            >
+                              {copiedWeddingId === w.id ? "Copied" : w.inviteCode}
+                            </Text>
+                          </Pressable>
+                        ) : null}
+                      </View>
+
                       {w.location ? (
                         <Text
                           style={{
@@ -413,15 +537,24 @@ export default function Guests() {
 
                     {w.guests.length > 0 && (
                       <View>
-                        <SectionHeader
-                          title="Guests"
-                          count={w.guests.length}
-                          icon="person"
-                          color="#7C5CFC"
-                        />
-                        {w.guests.map((g) => (
-                          <GuestCard key={g.id} guest={g} />
-                        ))}
+                        <Pressable
+                          onPress={() => toggleGuests(w.id)}
+                          className="flex-row items-center justify-between mt-6 mb-3"
+                        >
+                          <SectionHeader
+                            title="Guests"
+                            count={w.guests.length}
+                            icon="person"
+                            color="#7C5CFC"
+                          />
+                          <Ionicons
+                            name={collapsedGuestSections[w.id] ? "chevron-down" : "chevron-up"}
+                            size={20}
+                            color="#7C5CFC"
+                          />
+                        </Pressable>
+                        {!collapsedGuestSections[w.id] &&
+                          w.guests.map((g) => <GuestCard key={g.id} guest={g} />)}
                       </View>
                     )}
                   </View>
