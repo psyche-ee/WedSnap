@@ -1,5 +1,4 @@
 import { Text, View, Image, ScrollView } from "react-native";
-import { Link } from "expo-router";
 import {
   useFonts,
   Poppins_500Medium,
@@ -7,97 +6,165 @@ import {
 } from "@expo-google-fonts/poppins";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import Navigation from "./components/Navigation";
 import Developers from "./components/Developers";
 
-const about = () => {
+export default function About() {
   const [fontsLoaded] = useFonts({
     Poppins_500Medium,
     Poppins_400Regular,
   });
 
-  if (!fontsLoaded) {
-    return null;
-  }
+  if (!fontsLoaded) return null;
+
+  const FeatureCard = ({ icon, title }) => (
+    <View
+      className="bg-white rounded-2xl p-4 flex-row items-center mb-3"
+      style={{
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.04,
+        shadowRadius: 4,
+        elevation: 2,
+      }}
+    >
+      <View
+        className="w-12 h-12 rounded-full justify-center items-center"
+        style={{ backgroundColor: "#F2EEFF" }}
+      >
+        <Ionicons name={icon} size={22} color="#7C5CFC" />
+      </View>
+
+      <Text
+        className="ml-4 text-base flex-1"
+        style={{
+          fontFamily: "Poppins_500Medium",
+          color: "#333",
+        }}
+      >
+        {title}
+      </Text>
+    </View>
+  );
 
   return (
-    <SafeAreaView className="flex-1 bg-[#E4DFFD]">
+    <SafeAreaView className="flex-1 bg-[#F7F5FF]">
       <ScrollView
-        contentContainerStyle={{ backgroundColor: "#E4DFFD", flexGrow: 1 }}
+        contentContainerClassName="px-5 pb-24"
         showsVerticalScrollIndicator={false}
       >
-        <Link href={"/"} className="absolute top-5 left-5 z-10">
-          <Ionicons name="arrow-back" size={24} />
-        </Link>
-        <View className="mx-auto mt-20">
-          <Image source={require("../assets/wedsnap-banner.png")} />
-        </View>
-        <View className="mt-5 w-4/5 self-center">
+        {/* Header */}
+        <View className="mt-5 mb-4">
           <Text
-            className="text-[20px]"
-            style={{ fontFamily: "Poppins_500Medium" }}
+            className="text-[26px]"
+            style={{
+              fontFamily: "Poppins_500Medium",
+              color: "#333",
+            }}
           >
             About WedSnap
           </Text>
+
           <Text
-            className="text-base text-justify"
-            style={{ fontFamily: "Poppins_400Regular" }}
+            className="text-sm mt-1"
+            style={{
+              fontFamily: "Poppins_400Regular",
+              color: "#777",
+            }}
           >
-            WedSnap is dedicated to making wedding memories accessible. We
-            believe every smile should be shared the moment it happens, creating
-            a collective album for your special day.
+            Capture every wedding memory beautifully
           </Text>
         </View>
-        <View className="mt-5 w-4/5 self-center">
+
+        {/* Banner */}
+        <View className="items-center mb-6">
+          <Image
+            source={require("../assets/wedsnap-banner.png")}
+            className="rounded-3xl"
+          />
+        </View>
+
+        {/* About */}
+        <View className="bg-white rounded-3xl p-5 mb-5">
           <Text
-            className="text-[20px]"
+            className="text-lg mb-2"
+            style={{ fontFamily: "Poppins_500Medium" }}
+          >
+            Our Story
+          </Text>
+
+          <Text
+            className="text-sm leading-6"
+            style={{
+              fontFamily: "Poppins_400Regular",
+              color: "#666",
+            }}
+          >
+            WedSnap is dedicated to making wedding memories accessible.
+            Every smile, laugh, and magical moment deserves to be shared
+            instantly with family and friends.
+          </Text>
+        </View>
+
+        {/* Mission */}
+        <View className="bg-white rounded-3xl p-5 mb-5">
+          <Text
+            className="text-lg mb-2"
             style={{ fontFamily: "Poppins_500Medium" }}
           >
             Our Mission
           </Text>
+
           <Text
-            className="text-base text-justify"
-            style={{ fontFamily: "Poppins_400Regular" }}
+            className="text-sm leading-6"
+            style={{
+              fontFamily: "Poppins_400Regular",
+              color: "#666",
+            }}
           >
-            To capture and share the magic of every wedding memory,
-            effortlessly.
+            To make capturing, sharing, and reliving wedding memories
+            effortless for everyone.
           </Text>
         </View>
-        <View className="mt-5 w-4/5 self-center">
+
+        {/* Features */}
+        <View className="mb-4">
           <Text
-            className="text-[20px]"
-            style={{ fontFamily: "Poppins_500Medium" }}
+            className="text-lg mb-4"
+            style={{
+              fontFamily: "Poppins_500Medium",
+              color: "#333",
+            }}
           >
             Why WedSnap?
           </Text>
-          <Text
-            className="text-base text-justify"
-            style={{ fontFamily: "Poppins_400Regular" }}
-          >
-            {"\u2022"} Instant Photo Sharing
-          </Text>
-          <Text
-            className="text-base text-justify"
-            style={{ fontFamily: "Poppins_400Regular" }}
-          >
-            {"\u2022"} Interactive Guest Albums
-          </Text>
-          <Text
-            className="text-base text-justify"
-            style={{ fontFamily: "Poppins_400Regular" }}
-          >
-            {"\u2022"} Relive Every Moment
-          </Text>
-          <Text
-            className="text-base text-justify"
-            style={{ fontFamily: "Poppins_400Regular" }}
-          >
-            {"\u2022"} Simple & Secure
-          </Text>
+
+          <FeatureCard
+            icon="flash"
+            title="Instant Photo Sharing"
+          />
+
+          <FeatureCard
+            icon="images"
+            title="Interactive Guest Albums"
+          />
+
+          <FeatureCard
+            icon="heart"
+            title="Relive Every Moment"
+          />
+
+          <FeatureCard
+            icon="shield-checkmark"
+            title="Simple & Secure"
+          />
         </View>
-        <Developers fixed />
+
+        <Developers />
       </ScrollView>
+
+      <Navigation />
     </SafeAreaView>
   );
-};
-
-export default about;
+}
