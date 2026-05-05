@@ -46,31 +46,64 @@ const Home = () => {
   const [uploading, setUploading] = useState(false);
   const [userName, setUserName] = useState("User");
   const [wedding, setWedding] = useState(null);
+  const [organizerName, setOrganizerName] = useState("");
+
+  const toPascalCase = (value) =>
+    String(value || "")
+      .trim()
+      .split(/[^a-zA-Z0-9]+/)
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .join("");
 
   // 🔥 FETCH DATA
   useEffect(() => {
     const fetchData = async () => {
       try {
         const user = auth.currentUser;
-         if (!user || !weddingId) {
-            setWedding(null);
-            return;
-          }
+        if (!user || !weddingId) {
+          setWedding(null);
+          return;
+        }
 
         const userSnap = await getDoc(doc(db, "users", user.uid));
         if (userSnap.exists()) {
-          setUserName(userSnap.data().name || "User");
+          setUserName(toPascalCase(userSnap.data().name || "User"));
         }
 
         if (weddingId) {
-          const weddingSnap = await getDoc(
-            doc(db, "weddings", weddingId)
-          );
+          const weddingSnap = await getDoc(doc(db, "weddings", weddingId));
 
           if (weddingSnap.exists()) {
-            setWedding(weddingSnap.data());
+            const w = weddingSnap.data();
+            setWedding(w);
+
+            try {
+              const ownerId = w.userId || w.userUID || null;
+              if (ownerId) {
+                const ownerSnap = await getDoc(
+                  doc(db, "users", String(ownerId)),
+                );
+                if (ownerSnap.exists()) {
+                  const od = ownerSnap.data();
+                  setOrganizerName(
+                    od.name ||
+                      od.displayName ||
+                      (od.email ? od.email.split("@")[0] : ""),
+                  );
+                } else {
+                  setOrganizerName("");
+                }
+              } else {
+                setOrganizerName("");
+              }
+            } catch (err) {
+              console.log("resolve organizer name error", err);
+              setOrganizerName("");
+            }
           } else {
             setWedding(null);
+            setOrganizerName("");
           }
         }
       } catch (error) {
@@ -85,8 +118,7 @@ const Home = () => {
 
   // 📸 PHOTO CAMERA ONLY
   const openPhotoCamera = async () => {
-    const permission =
-      await ImagePicker.requestCameraPermissionsAsync();
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
 
     if (!permission.granted) return;
 
@@ -105,8 +137,7 @@ const Home = () => {
 
   // 📁 GALLERY
   const openGallery = async () => {
-    const permission =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permission.granted) return;
 
@@ -148,30 +179,24 @@ const Home = () => {
 
       const cloudinaryData = await uploadToCloudinary(asset);
 
-      await addDoc(
-        collection(db, "weddings", weddingId, "media"),
-        {
-          uploadedBy: user.uid,
-          type: "image",
+      await addDoc(collection(db, "weddings", weddingId, "media"), {
+        uploadedBy: user.uid,
+        type: "image",
 
-          url: cloudinaryData.secure_url,
-          publicId: cloudinaryData.public_id,
+        url: cloudinaryData.secure_url,
+        publicId: cloudinaryData.public_id,
 
-          width: cloudinaryData.width || null,
-          height: cloudinaryData.height || null,
+        width: cloudinaryData.width || null,
+        height: cloudinaryData.height || null,
 
-          createdAt: serverTimestamp(),
-        }
-      );
+        createdAt: serverTimestamp(),
+      });
 
       Alert.alert("Success", "Photo uploaded successfully!");
     } catch (error) {
       console.log(error);
 
-      Alert.alert(
-        "Upload Failed",
-        error.message || "Something went wrong."
-      );
+      Alert.alert("Upload Failed", error.message || "Something went wrong.");
     } finally {
       setUploading(false);
     }
@@ -185,36 +210,107 @@ const Home = () => {
       >
         {/* HEADER */}
         <View className="pt-5">
-          <Text
-            className="text-[22px]"
-            style={{ fontFamily: "Poppins_500Medium", color: "#333" }}
-          >
-            Welcome, {userName}!
-          </Text>
-
-          {wedding && (
-            <View className="mt-2">
+          <View className="flex-row items-start justify-between">
+            <View style={{ flex: 1 }}>
               <Text
-                style={{ fontFamily: "Poppins_500Medium", color: "#7C5CFC" }}
+                className="text-[22px]"
+                style={{ fontFamily: "Poppins_500Medium", color: "#111" }}
               >
-                {wedding.spouseName}
+                Welcome, {userName}!
               </Text>
 
-              <Text
-                style={{ fontFamily: "Poppins_400Regular", color: "#777" }}
-              >
-                {new Date(
-                  wedding.dateTime.seconds * 1000
-                ).toLocaleDateString()}
-              </Text>
+              {wedding ? (
+                <Text
+                  style={{
+                    fontFamily: "Poppins_500Medium",
+                    color: "#6B46FF",
+                    marginTop: 6,
+                    fontSize: 16,
+                  }}
+                >
+                  {(() => {
+                    const toPascalCase = (value) =>
+                      String(value || "")
+                        .trim()
+                        .split(/[^a-zA-Z0-9]+/)
+                        .filter(Boolean)
+                        .map(
+                          (part) =>
+                            part.charAt(0).toUpperCase() +
+                            part.slice(1).toLowerCase(),
+                        )
+                        .join("");
 
-              <Text
-                style={{ fontFamily: "Poppins_400Regular", color: "#777" }}
-              >
-                📍 {wedding.location}
-              </Text>
+                    const spouse = toPascalCase(wedding.spouseName);
+                    const org = toPascalCase(organizerName);
+                    if (spouse && org) return `${spouse} & ${org}`;
+                    if (spouse) return spouse;
+                    if (org) return org;
+                    return "Wedding";
+                  })()}
+                </Text>
+              ) : (
+                <Text
+                  style={{
+                    fontFamily: "Poppins_400Regular",
+                    color: "#777",
+                    marginTop: 6,
+                  }}
+                >
+                  No active wedding
+                </Text>
+              )}
             </View>
-          )}
+
+            <View className="ml-3">
+              <View
+                className="bg-white p-3 rounded-2xl"
+                style={{
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.06,
+                  shadowRadius: 8,
+                  elevation: 4,
+                  minWidth: 140,
+                }}
+              >
+                {wedding ? (
+                  <>
+                    <Text
+                      style={{ fontFamily: "Poppins_500Medium", color: "#333" }}
+                    >
+                      {new Date(
+                        wedding.dateTime.seconds * 1000,
+                      ).toLocaleDateString()}
+                    </Text>
+
+                    <View className="flex-row items-center mt-2">
+                      <Ionicons
+                        name="location-outline"
+                        size={14}
+                        color="#F59E0B"
+                      />
+                      <Text
+                        style={{
+                          fontFamily: "Poppins_400Regular",
+                          color: "#777",
+                          marginLeft: 8,
+                        }}
+                      >
+                        {wedding.location}
+                      </Text>
+                    </View>
+                  </>
+                ) : (
+                  <Text
+                    style={{ fontFamily: "Poppins_400Regular", color: "#777" }}
+                  >
+                    Join or create a wedding to get started
+                  </Text>
+                )}
+              </View>
+            </View>
+          </View>
         </View>
 
         {/* UPLOAD BUTTON */}

@@ -25,9 +25,12 @@ const PhotoDisplay = () => {
   const { weddingId } = useWedding();
 
   const [photos, setPhotos] = useState([]);
+  const [photoGroups, setPhotoGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [downloadingPhotoId, setDownloadingPhotoId] = useState(null);
+  const [uploaderMap, setUploaderMap] = useState({});
+  const [collapsedGroups, setCollapsedGroups] = useState({});
 
   useEffect(() => {
     if (!weddingId) {
@@ -45,13 +48,58 @@ const PhotoDisplay = () => {
       q,
       (snapshot) => {
         const media = snapshot.docs
-          .map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }))
+          .map((doc) => ({ id: doc.id, ...doc.data() }))
           .filter((item) => item.type === "image");
 
         setPhotos(media);
+
+        // build groups by uploader
+        const groups = {};
+        const uploaderIds = new Set();
+        media.forEach((m) => {
+          const uid = m.uploadedBy || "unknown";
+          uploaderIds.add(uid);
+          if (!groups[uid]) groups[uid] = [];
+          groups[uid].push(m);
+        });
+
+        const groupArray = Object.keys(groups).map((uid) => ({
+          uploaderId: uid,
+          photos: groups[uid],
+        }));
+
+        setPhotoGroups(groupArray);
+
+        // fetch uploader display names (best-effort)
+        const fetchUploaderNames = async () => {
+          const map = {};
+          await Promise.all(
+            Array.from(uploaderIds).map(async (uid) => {
+              try {
+                if (uid === "unknown") {
+                  map[uid] = "Unknown";
+                  return;
+                }
+                const uRef = doc(db, "users", uid);
+                const uSnap = await uRef.get?.();
+                // firestore v9 getDoc used earlier; use getDoc
+              } catch (e) {
+                // ignore — we'll fill later
+              }
+            }),
+          );
+
+          // simple best-effort map from available photos data
+          media.forEach((m) => {
+            const uid = m.uploadedBy || "unknown";
+            if (!map[uid]) map[uid] = m.uploadedByName || uid;
+          });
+
+          setUploaderMap(map);
+        };
+
+        fetchUploaderNames();
+
         setLoading(false);
       },
       (error) => {
@@ -146,35 +194,62 @@ const PhotoDisplay = () => {
 
   return (
     <View className="gap-2.5">
-      <Text className="text-[18px] font-semibold">
-        Photos ({photos.length})
-      </Text>
+      <Text className="text-[18px] font-semibold">Photos ({photos.length})</Text>
 
       {loading ? (
         <ActivityIndicator />
       ) : (
-        <View className="flex-row flex-wrap justify-between">
-          {photos.length > 0 ? (
-            photos.map((photo) => {
-              const user = auth.currentUser;
-              const canDelete = user && user.uid === photo.uploadedBy;
+        <View>
+          {photoGroups.length > 0 ? (
+            photoGroups.map((group) => {
+              const uploaderId = group.uploaderId;
+              const uploaderName = uploaderMap[uploaderId] || (uploaderId === "unknown" ? "Unknown" : uploaderId);
+              const collapsed = !!collapsedGroups[uploaderId];
 
               return (
-                <View key={photo.id} className="w-[30%] mb-2.5 relative">
-                  <Pressable onPress={() => handleOpenPhoto(photo)}>
-                    <Image
-                      source={{ uri: photo.url }}
-                      className="w-full h-[90px] rounded-[15px]"
-                    />
+                <View key={uploaderId} className="mb-4">
+                  <Pressable
+                    onPress={() =>
+                      setCollapsedGroups((prev) => ({ ...prev, [uploaderId]: !prev[uploaderId] }))
+                    }
+                    className="flex-row items-center justify-between mb-3"
+                  >
+                    <Text style={{ fontFamily: "Poppins_500Medium", color: "#333" }}>
+                      {uploaderName}
+                    </Text>
+                    <Text style={{ fontFamily: "Poppins_400Regular", color: "#777" }}>
+                      {group.photos.length} {group.photos.length === 1 ? "photo" : "photos"}
+                    </Text>
                   </Pressable>
 
-                  {canDelete && (
-                    <Pressable
-                      onPress={() => handleDelete(photo.id, photo.uploadedBy)}
-                      className="absolute top-1 right-1 bg-red-500 rounded-full px-2 py-1"
-                    >
-                      <Text className="text-white text-[10px]">Delete</Text>
-                    </Pressable>
+                  {!collapsed && (
+                    <View className="flex-row flex-wrap justify-between">
+                      {group.photos.map((photo, idx) => {
+                        const user = auth.currentUser;
+                        const canDelete = user && user.uid === photo.uploadedBy;
+
+                        // responsive widths: 100% for 1, 48% for 2, 32% for 3+
+                        const count = group.photos.length;
+                        const widthStyle = count === 1 ? { width: "100%" } : count === 2 ? { width: "48%" } : { width: "32%" };
+
+                        return (
+                          <View key={photo.id} style={{ ...widthStyle, marginBottom: 10 }}>
+                            <Pressable onPress={() => handleOpenPhoto(photo)}>
+                              <Image source={{ uri: photo.url }} style={{ width: "100%", height: 110, borderRadius: 15 }} />
+                            </Pressable>
+
+                            {canDelete && (
+                              <Pressable
+                                onPress={() => handleDelete(photo.id, photo.uploadedBy)}
+                                style={{ position: "absolute", right: 6, top: 6, backgroundColor: "#ef4444", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999 }}
+                              >
+                                <Text style={{ color: "#fff", fontSize: 10 }}>Delete</Text>
+                              </Pressable>
+                            )}
+                          </View>
+                        );
+                      })}
+                    </View>
                   )}
                 </View>
               );
@@ -200,8 +275,8 @@ const PhotoDisplay = () => {
                 will appear here instantly.
               </Text>
             </View>
-          )}
-        </View>
+            )}
+          </View>
       )}
 
       <Modal
